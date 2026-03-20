@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: ${bilibili.datasource.driver-class-name}
+    url: jdbc:mysql://${bilibili.datasource.host}:${bilibili.datasource.port}/${bilibili.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${bilibili.datasource.username}
+    password: ${bilibili.datasource.password}
+  data:
+    redis:
+      host: ${bilibili.redis.host}
+      port: ${bilibili.redis.port}
+      password: ${bilibili.redis.password}
+      database: ${bilibili.redis.database}
+      lettuce:
+        pool:
+          max-idle: ${bilibili.redis.lettuce.pool.max-idle}
+          max-active: ${bilibili.redis.lettuce.pool.max-active}
+          min-idle: ${bilibili.redis.lettuce.pool.min-idle}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+  packages-to-scan: com.bilibili
