@@ -6,7 +6,7 @@ CREATE TABLE `tb_user`
     `username`        VARCHAR(50)  NOT NULL COMMENT '用户名（唯一）',
     `password`        VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
     `salt`            varchar(32)  NOT NULL COMMENT '盐',
-    `email`           VARCHAR(100)          DEFAULT NULL COMMENT '邮箱',
+    `email`           VARCHAR(100) NOT NULL COMMENT '邮箱 (唯一) ',
     `phone`           VARCHAR(20)           DEFAULT NULL COMMENT '手机号',
     `avatar`          VARCHAR(255)          DEFAULT NULL COMMENT '头像URL',
     `nickname`        VARCHAR(50)           DEFAULT NULL COMMENT '昵称',
@@ -18,7 +18,8 @@ CREATE TABLE `tb_user`
     `last_login_time` DATETIME              DEFAULT NULL COMMENT '最后登录时间',
 
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_username` (`username`)
+    UNIQUE KEY `uk_username` (`username`),
+    UNIQUE KEY uk_email (email)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci

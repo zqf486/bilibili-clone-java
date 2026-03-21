@@ -1,24 +1,19 @@
 package com.bilibili.service.impl;
 
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bilibili.constant.MessageConstant;
-import com.bilibili.constant.TbUserConstant;
 import com.bilibili.dto.RegisterDTO;
 import com.bilibili.entity.TbUser;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.mapper.UserMapper;
 import com.bilibili.service.ICheckCodeService;
 import com.bilibili.service.IUserService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 /**

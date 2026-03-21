@@ -15,11 +15,13 @@ spring:
       port: ${bilibili.redis.port}
       password: ${bilibili.redis.password}
       database: ${bilibili.redis.database}
+      timeout: ${bilibili.redis.timeout}
       lettuce:
         pool:
           max-idle: ${bilibili.redis.lettuce.pool.max-idle}
           max-active: ${bilibili.redis.lettuce.pool.max-active}
           min-idle: ${bilibili.redis.lettuce.pool.min-idle}
+
 
 springdoc:
   api-docs:
