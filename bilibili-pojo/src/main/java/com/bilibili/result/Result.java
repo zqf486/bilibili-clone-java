@@ -37,4 +37,5 @@ public class Result<T> {
     public static <T> Result<T> error(String info, T data) {
         return new Result<>(FAILED.getStatus(), FAILED.getCode(), info, data);
     }
+
 }
