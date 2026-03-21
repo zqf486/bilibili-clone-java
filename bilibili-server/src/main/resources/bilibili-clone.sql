@@ -5,6 +5,7 @@ CREATE TABLE `tb_user`
     `id`              BIGINT       NOT NULL COMMENT '用户ID（主键）',
     `username`        VARCHAR(50)  NOT NULL COMMENT '用户名（唯一）',
     `password`        VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
+    `salt`            varchar(32)  NOT NULL COMMENT '盐',
     `email`           VARCHAR(100)          DEFAULT NULL COMMENT '邮箱',
     `phone`           VARCHAR(20)           DEFAULT NULL COMMENT '手机号',
     `avatar`          VARCHAR(255)          DEFAULT NULL COMMENT '头像URL',
@@ -18,7 +19,7 @@ CREATE TABLE `tb_user`
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_username` (`username`)
-) ENGINE=InnoDB
-DEFAULT CHARSET=utf8mb4
-COLLATE=utf8mb4_unicode_ci
-COMMENT='用户表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT ='用户表';

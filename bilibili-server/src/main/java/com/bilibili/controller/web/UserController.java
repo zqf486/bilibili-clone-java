@@ -1,5 +1,6 @@
 package com.bilibili.controller.web;
 
+import com.bilibili.dto.RegisterDTO;
 import com.bilibili.result.Result;
 import com.bilibili.service.ICheckCodeService;
 import com.bilibili.service.IUserService;
@@ -7,10 +8,9 @@ import com.bilibili.vo.CheckCodeVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -43,4 +43,17 @@ public class UserController {
         CheckCodeVO checkCodeVO = checkCodeService.getCheckCode();
         return Result.success(checkCodeVO);
     }
+
+    /**
+     * 用户注册
+     *
+     * @param registerDTO
+     * @return
+     */
+    @PostMapping("/register")
+    public Result register(@Valid @RequestBody RegisterDTO registerDTO) {
+        userService.register(registerDTO);
+        return Result.success();
+    }
+
 }
