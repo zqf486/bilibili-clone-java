@@ -2,6 +2,7 @@ package com.bilibili.vo;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.io.Serializable;
 
