@@ -5,6 +5,7 @@ public class TbUserConstant {
      * 用户账号长度
      * 1.用于新创建账号
      */
+    @Deprecated
     public static final int USER_ACCOUNT_LENGTH = 10;
     /**
      * 未知性别
@@ -17,5 +18,6 @@ public class TbUserConstant {
     /**
      * 盐长度
      */
+    @Deprecated
     public static final int USER_SALT_LENGTH = 16;
 }
