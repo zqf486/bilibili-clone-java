@@ -24,6 +24,7 @@ import com.bilibili.vo.UserInfoVO;
 import com.bilibili.vo.UserLoginVO;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -174,12 +175,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
 
     /**
      * 获取用户信息
-     * TODO: redis 缓存
      * TODO: 粉丝数量, 关注列表等
      *
      * @param id
      * @return 用户信息
      */
+    @Cacheable(value = RedisConstant.USER_CACHE_KEY, key = "#id")
     @Override
     public UserInfoVO getUserById(Long id) {
         TbUser tbUser = userMapper.selectById(id);
