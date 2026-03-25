@@ -19,9 +19,10 @@ public class RedisUtil {
      * @param key
      * @param time
      */
-    public void set(String key, String value, long time) {
+    public void set(String key, Object value, long time) {
         if (time < 0) {
             redisTemplate.opsForValue().set(key, value);
+            return;
         }
         redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
     }
@@ -50,5 +51,39 @@ public class RedisUtil {
      */
     public boolean delete(String key) {
         return redisTemplate.delete(key);
+    }
+
+    /**
+     * 重置 key 过期时间
+     *
+     * @param key
+     * @param time
+     * @return
+     */
+    public boolean expire(String key, long time) {
+        if (key.isBlank()) {
+            return false;
+        }
+
+        if (time <= 0) {
+            return false;
+        }
+
+        return Boolean.TRUE.equals(
+                redisTemplate.expire(key, time, TimeUnit.SECONDS)
+        );
+    }
+
+    /**
+     * 获取 key 过期时间
+     *
+     * @param key
+     * @return
+     */
+    public Long getExpire(String key) {
+        if (key == null || key.isEmpty()){
+            return null;
+        }
+        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
     }
 }

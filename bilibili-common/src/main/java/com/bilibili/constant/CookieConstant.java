@@ -8,5 +8,5 @@ public class CookieConstant {
     /**
      * cookie过期时间 单位(s)
      */
-    public static final int COOKIE_AGE = 60 * 60 * 24 * 7;
+    public static final int COOKIE_AGE = 60 * 60 * 24;
 }
