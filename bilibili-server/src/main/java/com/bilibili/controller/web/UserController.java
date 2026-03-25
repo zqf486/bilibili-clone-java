@@ -1,9 +1,11 @@
 package com.bilibili.controller.web;
 
 import com.bilibili.annotation.LoginRequired;
+import com.bilibili.constant.MessageConstant;
 import com.bilibili.context.UserContext;
 import com.bilibili.dto.LoginDTO;
 import com.bilibili.dto.RegisterDTO;
+import com.bilibili.exception.AuthException;
 import com.bilibili.result.Result;
 import com.bilibili.service.ICheckCodeService;
 import com.bilibili.service.IUserService;
@@ -93,6 +95,9 @@ public class UserController {
     @GetMapping("/me")
     public Result<UserLoginVO> me() {
         UserLoginVO userLoginVO = UserContext.get();
+        if (userLoginVO == null) {
+            throw new AuthException(MessageConstant.USER_NOT_LOGIN);
+        }
         return Result.success(userLoginVO);
     }
 
