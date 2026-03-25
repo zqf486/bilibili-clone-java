@@ -1,8 +1,11 @@
 package com.bilibili.service;
 
+import com.bilibili.dto.LoginDTO;
 import com.bilibili.dto.RegisterDTO;
 import com.bilibili.entity.TbUser;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bilibili.vo.UserLoginVO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 /**
@@ -21,4 +24,17 @@ public interface IUserService extends IService<TbUser> {
      * @param registerDTO
      */
     void register(@Valid RegisterDTO registerDTO);
+
+    /**
+     * 用户登录
+     *
+     * @param loginDTO
+     * @return
+     */
+    UserLoginVO login(@Valid LoginDTO loginDTO);
+
+    /**
+     * 用户退出
+     */
+    void logout();
 }
