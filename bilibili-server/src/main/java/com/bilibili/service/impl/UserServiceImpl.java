@@ -1,11 +1,14 @@
 package com.bilibili.service.impl;
 
+import cn.hutool.Hutool;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bilibili.constant.MessageConstant;
 import com.bilibili.constant.RedisConstant;
+import com.bilibili.constant.TbUserConstant;
 import com.bilibili.context.UserContext;
 import com.bilibili.dto.LoginDTO;
 import com.bilibili.dto.RegisterDTO;
@@ -17,6 +20,7 @@ import com.bilibili.mapper.UserMapper;
 import com.bilibili.service.ICheckCodeService;
 import com.bilibili.service.IUserService;
 import com.bilibili.util.RedisUtil;
+import com.bilibili.vo.UserInfoVO;
 import com.bilibili.vo.UserLoginVO;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -166,5 +170,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
 
         // 1.清除 redis 登录状态
         redisUtil.delete(RedisConstant.REDIS_TOKEN_KEY_WEB + userLoginVO.getToken());
+    }
+
+    /**
+     * 获取用户信息
+     * TODO: redis 缓存
+     * TODO: 粉丝数量, 关注列表等
+     *
+     * @param id
+     * @return 用户信息
+     */
+    @Override
+    public UserInfoVO getUserById(Long id) {
+        TbUser tbUser = userMapper.selectById(id);
+        UserInfoVO userInfoVO = BeanUtil.copyProperties(tbUser, UserInfoVO.class);
+        return userInfoVO;
     }
 }

@@ -9,11 +9,11 @@ import com.bilibili.service.ICheckCodeService;
 import com.bilibili.service.IUserService;
 import com.bilibili.util.CookieUtil;
 import com.bilibili.vo.CheckCodeVO;
+import com.bilibili.vo.UserInfoVO;
 import com.bilibili.vo.UserLoginVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +75,7 @@ public class UserController {
      */
     @Operation(summary = "用户登录")
     @PostMapping("/login")
-    public Result login(HttpServletResponse response, @Valid @RequestBody LoginDTO loginDTO) {
+    public Result<UserLoginVO> login(HttpServletResponse response, @Valid @RequestBody LoginDTO loginDTO) {
         log.info("用户登录： {}", loginDTO);
         UserLoginVO userLoginVO = userService.login(loginDTO);
         String token = userLoginVO.getToken();
@@ -83,6 +83,18 @@ public class UserController {
         return Result.success(userLoginVO);
     }
 
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return userLoginVO
+     */
+    @Operation(summary = "获取当前登录用户信息")
+    @LoginRequired
+    @GetMapping("/me")
+    public Result<UserLoginVO> me() {
+        UserLoginVO userLoginVO = UserContext.get();
+        return Result.success(userLoginVO);
+    }
 
     /**
      * 用户退出
@@ -90,13 +102,27 @@ public class UserController {
      * @param response
      * @return
      */
-    @LoginRequired
     @Operation(summary = "用户退出")
+    @LoginRequired
     @PostMapping("/logout")
     public Result logout(HttpServletResponse response) {
         log.info("用户退出: {}", UserContext.get());
         userService.logout();
         CookieUtil.cleanToken2Cookie(response);
         return Result.success();
+    }
+
+    /**
+     * 获取用户信息
+     *
+     * @param id
+     * @return
+     */
+    @Operation(summary = "获取用户信息")
+    @GetMapping("/{id}")
+    public Result getUserById(@PathVariable Long id) {
+        log.info("获取用户信息: {}", id);
+        UserInfoVO user = userService.getUserById(id);
+        return Result.success(user);
     }
 }
