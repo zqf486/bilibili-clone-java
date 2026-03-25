@@ -8,5 +8,6 @@ public class MessageConstant {
     public static final String EMAIL_ACCOUNT_ALREADY_EXISTED = "邮箱账户已经存在";
     public static final String ACCOUNT_OR_PASSWORD_NOT_EXISTED = "账号不存在或密码错误";
     public static final String NICK_NAME_ALREADY_EXISTED = "用户名已被占用";
-    public static final String ACCOUNT_BANNED = "账号被封禁";
+    public static final String ACCOUNT_BANNED = "账号已被封禁";
+    public static final String USER_NOT_LOGIN = "用户未登录";
 }

@@ -2,15 +2,24 @@ package com.bilibili.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bilibili.constant.MessageConstant;
+import com.bilibili.constant.RedisConstant;
+import com.bilibili.context.UserContext;
+import com.bilibili.dto.LoginDTO;
 import com.bilibili.dto.RegisterDTO;
 import com.bilibili.entity.TbUser;
+import com.bilibili.enumeration.UserStatusEnum;
+import com.bilibili.exception.AuthException;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.mapper.UserMapper;
 import com.bilibili.service.ICheckCodeService;
 import com.bilibili.service.IUserService;
+import com.bilibili.util.RedisUtil;
+import com.bilibili.vo.UserLoginVO;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +42,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
     @Resource
     private ICheckCodeService checkCodeService;
 
+    @Resource
+    private RedisUtil redisUtil;
+
     /**
      * 用户注册
      *
@@ -44,7 +56,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
 
         // 0.检查验证码是否正确
         checkCodeService.verifyCheckCode(registerDTO.getCheckCodeKey(), registerDTO.getCheckCode());
-
 
         // 1.判断账户是否已经存在
         boolean exists = lambdaQuery()
@@ -82,5 +93,78 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
 
         // 4.保存
         userMapper.insert(user);
+    }
+
+    /**
+     * 用户登录
+     *
+     * @param loginDTO
+     * @return
+     */
+    @Override
+    public UserLoginVO login(LoginDTO loginDTO) {
+
+        // 0.检查验证码
+        checkCodeService.verifyCheckCode(loginDTO.getCheckCodeKey(), loginDTO.getCheckCode());
+
+        // 1.判断账户是否存在
+        boolean exists = lambdaQuery()
+                .eq(TbUser::getEmail, loginDTO.getEmail())
+                .count() > 0;
+        if (!exists) {
+            throw new BusinessException(MessageConstant.EMAIL_ACCOUNT_ALREADY_EXISTED);
+        }
+
+        // 2.判断秘密是否正确
+        TbUser user = lambdaQuery()
+                .eq(TbUser::getEmail, loginDTO.getEmail())
+                .one();
+        String salt = user.getSalt();
+        String encryptPwd = DigestUtil.md5Hex(loginDTO.getPassword() + salt);
+        if (!user.getPassword().equals(encryptPwd)) {
+            throw new BusinessException(MessageConstant.ACCOUNT_OR_PASSWORD_NOT_EXISTED);
+        }
+
+        // 3.判断账户是否被禁用
+        if (UserStatusEnum.DISABLED.getCode() == user.getStatus()) {
+            throw new BusinessException(MessageConstant.ACCOUNT_BANNED);
+        }
+
+        // 4. 设置最后登录时间
+        userMapper.update(
+                null,
+                new LambdaUpdateWrapper<TbUser>()
+                        .eq(TbUser::getId, user.getId())
+                        .set(TbUser::getLastLoginTime, LocalDateTime.now())
+        );
+
+        // 5. 构建返回对象
+        String token = IdUtil.fastSimpleUUID();
+        UserLoginVO userLoginVO = UserLoginVO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .token(token)
+                .build();
+
+        // 6. 保存返回对象到 redis
+        redisUtil.set(RedisConstant.REDIS_TOKEN_KEY_WEB + token, userLoginVO, RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY);
+
+        return userLoginVO;
+    }
+
+    /**
+     * 用户退出
+     */
+    @Override
+    public void logout() {
+        // 0.获取 UserLoginVO
+        UserLoginVO userLoginVO = UserContext.get();
+        if (userLoginVO == null) {
+            throw new AuthException(MessageConstant.USER_NOT_LOGIN);
+        }
+
+        // 1.清除 redis 登录状态
+        redisUtil.delete(RedisConstant.REDIS_TOKEN_KEY_WEB + userLoginVO.getToken());
     }
 }
