@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -43,6 +44,18 @@ public class GlobalExceptionHandler {
     public Result handleBizException(BusinessException e) {
         log.info("业务异常: {}", e.getMessage());
         return Result.error(e.getMessage());
+    }
+
+    /**
+     * 捕获参数类型不匹配异常
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public Result handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.info("请求参数异常: {}, 位于: {}", e.getName(), e.getParameter());
+        return Result.error(MessageConstant.TYPE_MISMATCH + " : " + e.getParameter());
     }
 
     /**

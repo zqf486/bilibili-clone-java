@@ -10,4 +10,5 @@ public class MessageConstant {
     public static final String NICK_NAME_ALREADY_EXISTED = "用户名已被占用";
     public static final String ACCOUNT_BANNED = "账号已被封禁";
     public static final String USER_NOT_LOGIN = "用户未登录";
+    public static final String TYPE_MISMATCH = "参数类型不匹配";
 }
