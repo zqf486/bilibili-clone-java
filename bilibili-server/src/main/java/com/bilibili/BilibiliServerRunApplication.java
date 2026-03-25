@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
-@SpringBootApplication
-@MapperScan("com.bilibili.mapper")
 @Slf4j
+@EnableCaching
+@MapperScan("com.bilibili.mapper")
+@SpringBootApplication
 public class BilibiliServerRunApplication {
     public static void main(String[] args) {
         SpringApplication.run(BilibiliServerRunApplication.class, args);
