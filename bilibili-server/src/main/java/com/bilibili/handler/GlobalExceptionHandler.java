@@ -1,14 +1,18 @@
 package com.bilibili.handler;
 
+import cn.hutool.core.io.resource.NoResourceException;
 import com.bilibili.constant.MessageConstant;
 import com.bilibili.enumeration.ValidationMessageEnum;
 import com.bilibili.enumeration.ResponseEnum;
+import com.bilibili.exception.AuthException;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
@@ -18,6 +22,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * 捕获空路由请求
+     *
+     * @return 404
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public Result handle404Exception() {
+        return new Result(ResponseEnum.NOT_FOUND.getStatus(), ResponseEnum.NOT_FOUND.getCode(), ResponseEnum.NOT_FOUND.getInfo(), null);
+    }
 
     /**
      * 捕获业务异常
@@ -32,28 +46,36 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 捕获 未登录 / 未认证
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(AuthException.class)
+    public Result handleAuthException(AuthException e) {
+        log.info("鉴权拦截: {}", e.getMessage());
+        return new Result(ResponseEnum.UNAUTHORIZED.getStatus(), ResponseEnum.UNAUTHORIZED.getCode(), ResponseEnum.UNAUTHORIZED.getInfo(), null);
+    }
+
+    /**
      * 捕获 Bean Validation 校验异常
      *
      * @param ex
-     * @return
+     * @return Map<field, message>
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result handleValidationException(MethodArgumentNotValidException ex) {
-        List<HashMap> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(err -> {
-                    HashMap hashMap = new HashMap();
-                    hashMap.put("field", err.getField());
+        List<HashMap> errors = ex.getBindingResult().getFieldErrors().stream().map(err -> {
+            HashMap hashMap = new HashMap();
+            hashMap.put("field", err.getField());
 
-                    String msg = err.getDefaultMessage();
-                    if (ValidationMessageEnum.REGISTER_PASSWORD.getErrorField().equals(err.getField())) {
-                        msg = ValidationMessageEnum.REGISTER_PASSWORD.getErrorMsg();
-                    }
-                    hashMap.put("message", msg);
-                    return hashMap;
-                })
-                .collect(Collectors.toList());
+            String msg = err.getDefaultMessage();
+            if (ValidationMessageEnum.REGISTER_PASSWORD.getErrorField().equals(err.getField())) {
+                msg = ValidationMessageEnum.REGISTER_PASSWORD.getErrorMsg();
+            }
+            hashMap.put("message", msg);
+            return hashMap;
+        }).collect(Collectors.toList());
         log.info("参数校验失败: {}", errors);
         return Result.error("参数校验失败", errors);
     }
@@ -86,6 +108,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e) {
+        log.error("未知异常: {}", e);
         return Result.error(MessageConstant.UNKNOWN_ERROR);
     }
 }
