@@ -63,7 +63,7 @@ public class CheckCodeServiceImpl implements ICheckCodeService {
         }
 
         // 2.clean redis key
-        redisUtil.delete(checkCodeKey);
+        redisUtil.delete(RedisConstant.REDIS_KEY_CHECK_CODE + checkCodeKey);
 
         // 3.比对结果
         if (!checkCodeRow.equals(checkCode)) {
