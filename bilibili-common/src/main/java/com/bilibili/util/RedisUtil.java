@@ -12,7 +12,6 @@ public class RedisUtil {
     @Resource
     private RedisTemplate redisTemplate;
 
-
     /**
      * 将值存入 redis 并设置 过期时间
      *
