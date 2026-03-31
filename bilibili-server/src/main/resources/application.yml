@@ -21,7 +21,12 @@ spring:
           max-idle: ${bilibili.redis.lettuce.pool.max-idle}
           max-active: ${bilibili.redis.lettuce.pool.max-active}
           min-idle: ${bilibili.redis.lettuce.pool.min-idle}
+  cache:
+    type: redis
 
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 springdoc:
   api-docs:
