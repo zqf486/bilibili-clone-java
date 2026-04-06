@@ -85,7 +85,7 @@ public class CacheClient {
         }
 
         // 2.2.数据库未命中设置空值并返回
-        redisUtil.set(keyPrefix, id, r, RedisConstant.CACHE_NULL_TTL);
+        redisUtil.set(keyPrefix, id, "", RedisConstant.CACHE_NULL_TTL);
 
         return null;
     }

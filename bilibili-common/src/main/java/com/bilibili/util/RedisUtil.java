@@ -4,7 +4,6 @@ import com.bilibili.result.CacheResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class RedisUtil {
-
-    @Resource
-    private RedisTemplate redisTemplate;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -30,9 +26,14 @@ public class RedisUtil {
      */
     public <T, ID> void set(String keyPrefix, ID key, T value, Long timeout) {
         try {
-            String json = null;
+            // 1.空值缓存
+            if("".equals(value)){
+                stringRedisTemplate.opsForValue().set(keyPrefix + key, "", timeout, TimeUnit.SECONDS);
+                return;
+            }
 
-            json = objectMapper.writeValueAsString(value);
+            // 2.正常缓存
+            String json = objectMapper.writeValueAsString(value);
 
             if (timeout < 0) {
                 stringRedisTemplate.opsForValue().set(keyPrefix + key, json);

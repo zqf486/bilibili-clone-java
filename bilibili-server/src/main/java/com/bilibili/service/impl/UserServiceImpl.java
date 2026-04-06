@@ -183,7 +183,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
     @Override
     public UserInfoVO getUserById(Long id) {
         TbUser tbUser = cacheClient.queryWithPassThrough(RedisConstant.CACHE_USER_KEY, id, TbUser.class, userMapper::selectById, RedisConstant.REDIS_KEY_EXPIRES_ONE_MIN * 30);
-        // TbUser tbUser = userMapper.selectById(id);
         UserInfoVO userInfoVO = BeanUtil.copyProperties(tbUser, UserInfoVO.class);
         return userInfoVO;
     }
