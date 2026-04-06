@@ -16,7 +16,8 @@ public class RedisConfig {
      * @param factory
      * @return
      */
-    @Bean("redisTemplate")
+    @Deprecated
+    @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
