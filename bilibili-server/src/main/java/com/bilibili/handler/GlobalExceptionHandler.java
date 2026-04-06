@@ -1,6 +1,5 @@
 package com.bilibili.handler;
 
-import cn.hutool.core.io.resource.NoResourceException;
 import com.bilibili.constant.MessageConstant;
 import com.bilibili.enumeration.ValidationMessageEnum;
 import com.bilibili.enumeration.ResponseEnum;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.sql.SQLIntegrityConstraintViolationException;

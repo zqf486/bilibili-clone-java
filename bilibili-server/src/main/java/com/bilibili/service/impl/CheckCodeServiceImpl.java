@@ -36,7 +36,7 @@ public class CheckCodeServiceImpl implements ICheckCodeService {
 
         // 2.生成图片验证码key 并存入redis
         String checkCodeKey = UUID.randomUUID().toString();
-        redisUtil.set(RedisConstant.REDIS_KEY_CHECK_CODE + checkCodeKey, shearCaptcha.getCode(), RedisConstant.REDIS_KEY_EXPIRES_ONE_MIN * 2);
+        redisUtil.set(RedisConstant.REDIS_KEY_CHECK_CODE, checkCodeKey, shearCaptcha.getCode(), RedisConstant.REDIS_KEY_EXPIRES_ONE_MIN * 2);
 
         // 3.生成返回对象
         return CheckCodeVO.builder()
@@ -57,13 +57,14 @@ public class CheckCodeServiceImpl implements ICheckCodeService {
     public void verifyCheckCode(String checkCodeKey, String checkCode) {
 
         // 1.获取原始 checkCode
-        String checkCodeRow = redisUtil.get(RedisConstant.REDIS_KEY_CHECK_CODE + checkCodeKey, String.class);
+        String checkCodeRow = redisUtil.get(RedisConstant.REDIS_KEY_CHECK_CODE, checkCodeKey, String.class);
+
         if (StrUtil.isBlank(checkCodeRow)) {
             throw new BusinessException(MessageConstant.CHECK_CODE_EXPIRED);
         }
 
         // 2.clean redis key
-        redisUtil.delete(RedisConstant.REDIS_KEY_CHECK_CODE + checkCodeKey);
+        redisUtil.delete(RedisConstant.REDIS_KEY_CHECK_CODE, checkCodeKey);
 
         // 3.比对结果
         if (!checkCodeRow.equals(checkCode)) {

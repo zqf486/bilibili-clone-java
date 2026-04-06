@@ -5,6 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bilibili.cache.CacheClient;
 import com.bilibili.constant.MessageConstant;
 import com.bilibili.constant.RedisConstant;
 import com.bilibili.context.UserContext;
@@ -45,6 +46,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
 
     @Resource
     private RedisUtil redisUtil;
+
+    @Resource
+    private CacheClient cacheClient;
 
     /**
      * 用户注册
@@ -149,7 +153,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
                 .build();
 
         // 6. 保存返回对象到 redis
-        redisUtil.set(RedisConstant.REDIS_TOKEN_KEY_WEB + token, userLoginVO, RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY);
+        redisUtil.set(RedisConstant.REDIS_TOKEN_KEY_WEB, token, userLoginVO, RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY);
 
         return userLoginVO;
     }
@@ -166,20 +170,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
         }
 
         // 1.清除 redis 登录状态
-        redisUtil.delete(RedisConstant.REDIS_TOKEN_KEY_WEB + userLoginVO.getToken());
+        redisUtil.delete(RedisConstant.REDIS_TOKEN_KEY_WEB, userLoginVO.getToken());
     }
 
     /**
      * 获取用户信息
      * TODO: 粉丝数量, 关注列表等
-     * TODO: redis 缓存
      *
      * @param id
      * @return 用户信息
      */
     @Override
     public UserInfoVO getUserById(Long id) {
-        TbUser tbUser = userMapper.selectById(id);
+        TbUser tbUser = cacheClient.queryWithPassThrough(RedisConstant.CACHE_USER_KEY, id, TbUser.class, userMapper::selectById, RedisConstant.REDIS_KEY_EXPIRES_ONE_MIN * 30);
+        // TbUser tbUser = userMapper.selectById(id);
         UserInfoVO userInfoVO = BeanUtil.copyProperties(tbUser, UserInfoVO.class);
         return userInfoVO;
     }

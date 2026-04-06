@@ -1,7 +1,11 @@
 package com.bilibili.util;
 
+import com.bilibili.result.CacheResult;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -12,34 +16,90 @@ public class RedisUtil {
     @Resource
     private RedisTemplate redisTemplate;
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private ObjectMapper objectMapper;
+
     /**
      * 将值存入 redis 并设置 过期时间
      *
      * @param key
-     * @param time
+     * @param timeout 单位 (s)
      */
-    public void set(String key, Object value, long time) {
-        if (time < 0) {
-            redisTemplate.opsForValue().set(key, value);
-            return;
+    public <T, ID> void set(String keyPrefix, ID key, T value, Long timeout) {
+        try {
+            String json = null;
+
+            json = objectMapper.writeValueAsString(value);
+
+            if (timeout < 0) {
+                stringRedisTemplate.opsForValue().set(keyPrefix + key, json);
+                return;
+            }
+
+            stringRedisTemplate.opsForValue().set(keyPrefix + key, json, timeout, TimeUnit.SECONDS);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-        redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
     }
 
     /**
      * 根据 key 取值
      *
      * @param key
-     * @param clazz
-     * @param <T>
      * @return
      */
-    public <T> T get(String key, Class<T> clazz) {
-        Object value = redisTemplate.opsForValue().get(key);
-        if (value == null) {
-            return null;
+    public <T> T get(String keyPrefix, String key, Class<T> clazz) {
+        try {
+
+            String json = stringRedisTemplate.opsForValue().get(keyPrefix + key);
+
+            if (json == null) {
+                return null;
+            }
+
+            if ("".equals(json)) {
+                return null;
+            }
+
+            return objectMapper.readValue(json, clazz);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-        return clazz.cast(value);
+    }
+
+    /**
+     * 根据 key 读取缓存
+     *
+     * @param key   缓存key
+     * @param clazz data类
+     * @param <T>
+     * @return
+     * @throws JsonProcessingException
+     */
+    public <R, ID> CacheResult<R> getCache(String keyPrefix, ID key, Class<R> clazz) {
+        try {
+            String json = stringRedisTemplate.opsForValue().get(keyPrefix + key);
+
+            if (json == null) {
+                return new CacheResult<>(false, false, null);
+            }
+
+            if ("".equals(json)) {
+                return new CacheResult<>(true, true, null);
+            }
+
+            R data = objectMapper.readValue(json, clazz);
+
+            return new CacheResult<>(true, false, data);
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -48,18 +108,19 @@ public class RedisUtil {
      * @param key
      * @return
      */
-    public boolean delete(String key) {
-        return redisTemplate.delete(key);
+    public boolean delete(String keyPrefix, String key) {
+        return stringRedisTemplate.delete(keyPrefix + key);
     }
 
     /**
-     * 重置 key 过期时间
+     * 设置 key 过期时间
      *
      * @param key
      * @param time
      * @return
      */
-    public boolean expire(String key, long time) {
+    public boolean expire(String keyPrefix, String key, long time) {
+
         if (key.isBlank()) {
             return false;
         }
@@ -69,7 +130,7 @@ public class RedisUtil {
         }
 
         return Boolean.TRUE.equals(
-                redisTemplate.expire(key, time, TimeUnit.SECONDS)
+                stringRedisTemplate.expire(keyPrefix + key, time, TimeUnit.SECONDS)
         );
     }
 
@@ -79,10 +140,10 @@ public class RedisUtil {
      * @param key
      * @return
      */
-    public Long getExpire(String key) {
-        if (key == null || key.isEmpty()){
+    public Long getExpire(String keyPrefix, String key) {
+        if (key == null || key.isEmpty()) {
             return null;
         }
-        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        return stringRedisTemplate.getExpire(keyPrefix + key, TimeUnit.SECONDS);
     }
 }
