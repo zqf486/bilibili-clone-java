@@ -30,7 +30,7 @@ CREATE TABLE `tb_category`
     `id`          INT         NOT NULL AUTO_INCREMENT COMMENT '分类ID（主键）',
     `name`        VARCHAR(50) NOT NULL COMMENT '分类名称（如：科技、游戏）',
     `sort`        INT                  DEFAULT 0 COMMENT '排序字段（数值越小越靠前）',
-    `status`      TINYINT              DEFAULT 1 COMMENT '状态：1显示 0隐藏',
+    `status`      TINYINT              DEFAULT 0 COMMENT '状态：1显示 0隐藏',
     `create_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 
