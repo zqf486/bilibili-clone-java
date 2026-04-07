@@ -7,10 +7,12 @@ import com.bilibili.exception.AuthException;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -106,27 +108,31 @@ public class GlobalExceptionHandler {
     /**
      * 捕获 sql 唯一约束异常
      *
-     * @param e
+     * @param
      * @return
      */
-    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    public Result handleSqlException(SQLIntegrityConstraintViolationException e) {
-        log.info("sql 唯一约束异常: {}", e.getMessage());
-        String message = e.getMessage();
-        if (message.contains("Duplicate entry")) {
-            String[] split = message.split(" ");
-            String value = split[2];
-            String msg = value + MessageConstant.ALREADY_EXISTS;
-            return Result.error(msg);
-        } else {
-            return new Result(
-                    ResponseEnum.SERVER_ERROR.getStatus(),
-                    ResponseEnum.SERVER_ERROR.getCode(),
-                    ResponseEnum.SERVER_ERROR.getInfo(),
-                    null
-            );
-        }
+    @ExceptionHandler(DuplicateKeyException.class)
+    public Result handleDuplicateKey() {
+        return Result.error(MessageConstant.ALREADY_EXISTS);
     }
+//    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+//    public Result handleSqlException(SQLIntegrityConstraintViolationException e) {
+//        log.info("sql 唯一约束异常: {}", e.getMessage());
+//        String message = e.getMessage();
+//        if (message.contains("Duplicate entry")) {
+//            String[] split = message.split(" ");
+//            String value = split[2];
+//            String msg = value + MessageConstant.ALREADY_EXISTS;
+//            return Result.error(msg);
+//        } else {
+//            return new Result(
+//                    ResponseEnum.SERVER_ERROR.getStatus(),
+//                    ResponseEnum.SERVER_ERROR.getCode(),
+//                    ResponseEnum.SERVER_ERROR.getInfo(),
+//                    null
+//            );
+//        }
+//    }
 
     /**
      * 捕获请求方式异常
