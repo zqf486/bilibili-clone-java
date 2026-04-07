@@ -7,6 +7,7 @@ import com.bilibili.exception.AuthException;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,7 +31,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NoResourceFoundException.class)
     public Result handle404Exception() {
-        return new Result(ResponseEnum.NOT_FOUND.getStatus(), ResponseEnum.NOT_FOUND.getCode(), ResponseEnum.NOT_FOUND.getInfo(), null);
+        return new Result(
+                ResponseEnum.NOT_FOUND.getStatus(),
+                ResponseEnum.NOT_FOUND.getCode(),
+                ResponseEnum.NOT_FOUND.getInfo(),
+                null
+        );
     }
 
     /**
@@ -66,7 +72,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthException.class)
     public Result handleAuthException(AuthException e) {
         log.info("鉴权拦截: {}", e.getMessage());
-        return new Result(ResponseEnum.UNAUTHORIZED.getStatus(), ResponseEnum.UNAUTHORIZED.getCode(), ResponseEnum.UNAUTHORIZED.getInfo(), null);
+        return new Result(
+                ResponseEnum.UNAUTHORIZED.getStatus(),
+                ResponseEnum.UNAUTHORIZED.getCode(),
+                ResponseEnum.UNAUTHORIZED.getInfo(),
+                null
+        );
     }
 
     /**
@@ -95,7 +106,7 @@ public class GlobalExceptionHandler {
     /**
      * 捕获 sql 唯一约束异常
      *
-     * @param ex
+     * @param e
      * @return
      */
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
@@ -108,7 +119,12 @@ public class GlobalExceptionHandler {
             String msg = value + MessageConstant.ALREADY_EXISTS;
             return Result.error(msg);
         } else {
-            return new Result(ResponseEnum.SERVER_ERROR.getStatus(), ResponseEnum.SERVER_ERROR.getCode(), ResponseEnum.SERVER_ERROR.getInfo(), null);
+            return new Result(
+                    ResponseEnum.SERVER_ERROR.getStatus(),
+                    ResponseEnum.SERVER_ERROR.getCode(),
+                    ResponseEnum.SERVER_ERROR.getInfo(),
+                    null
+            );
         }
     }
 
@@ -120,7 +136,23 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public Result handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
-        return new Result(ResponseEnum.METHOD_NOT_ALLOWED.getStatus(), ResponseEnum.METHOD_NOT_ALLOWED.getCode(), ResponseEnum.METHOD_NOT_ALLOWED.getInfo(), null);
+        return new Result(
+                ResponseEnum.METHOD_NOT_ALLOWED.getStatus(),
+                ResponseEnum.METHOD_NOT_ALLOWED.getCode(),
+                ResponseEnum.METHOD_NOT_ALLOWED.getInfo(),
+                null
+        );
+    }
+
+    /**
+     * 捕获请求体错误 / 缺失
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public Result handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        return Result.error(MessageConstant.HTTP_MESSAGE_NOT_READABLE);
     }
 
     /**
@@ -131,7 +163,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e) {
-        log.error("未知异常: {}", e);
+        log.error("未知异常", e);
         return Result.error(MessageConstant.UNKNOWN_ERROR);
     }
 }
