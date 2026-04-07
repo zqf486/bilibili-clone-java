@@ -24,3 +24,19 @@ CREATE TABLE `tb_user`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
     COMMENT ='用户表';
+
+CREATE TABLE `tb_category`
+(
+    `id`          INT         NOT NULL AUTO_INCREMENT COMMENT '分类ID（主键）',
+    `name`        VARCHAR(50) NOT NULL COMMENT '分类名称（如：科技、游戏）',
+    `sort`        INT                  DEFAULT 0 COMMENT '排序字段（数值越小越靠前）',
+    `status`      TINYINT              DEFAULT 1 COMMENT '状态：1显示 0隐藏',
+    `create_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_name` (`name`) COMMENT '分类名称唯一'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT ='视频分区表';
