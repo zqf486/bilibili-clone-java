@@ -13,7 +13,8 @@ public enum ResponseEnum {
     UNAUTHORIZED("未登录或认证失败", "error", HttpStatus.UNAUTHORIZED.value()),
     FORBIDDEN("没有权限", "error", HttpStatus.FORBIDDEN.value()),
     NOT_FOUND("资源不存在", "error", HttpStatus.NOT_FOUND.value()),
-    SERVER_ERROR("服务器内部错误", "error", HttpStatus.INTERNAL_SERVER_ERROR.value());
+    SERVER_ERROR("服务器内部错误", "error", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+    METHOD_NOT_ALLOWED("不支持的请求方式", "error", HttpStatus.METHOD_NOT_ALLOWED.value());
 
     private final String info;
     private final String status;

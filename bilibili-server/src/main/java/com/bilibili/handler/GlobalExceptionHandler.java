@@ -7,6 +7,7 @@ import com.bilibili.exception.AuthException;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -109,6 +110,17 @@ public class GlobalExceptionHandler {
         } else {
             return new Result(ResponseEnum.SERVER_ERROR.getStatus(), ResponseEnum.SERVER_ERROR.getCode(), ResponseEnum.SERVER_ERROR.getInfo(), null);
         }
+    }
+
+    /**
+     * 捕获请求方式异常
+     *
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public Result handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+        return new Result(ResponseEnum.METHOD_NOT_ALLOWED.getStatus(), ResponseEnum.METHOD_NOT_ALLOWED.getCode(), ResponseEnum.METHOD_NOT_ALLOWED.getInfo(), null);
     }
 
     /**
