@@ -112,8 +112,9 @@ public class GlobalExceptionHandler {
      * @return
      */
     @ExceptionHandler(DuplicateKeyException.class)
-    public Result handleDuplicateKey() {
-        return Result.error(MessageConstant.ALREADY_EXISTS);
+    public Result handleDuplicateKey(DuplicateKeyException e) {
+//        log.info(e.getCause().getMessage().split("'")[1]);
+        return Result.error(MessageConstant.ALREADY_EXISTS + ":" + e.getCause().getMessage().split("'")[1]);
     }
 //    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
 //    public Result handleSqlException(SQLIntegrityConstraintViolationException e) {

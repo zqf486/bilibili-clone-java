@@ -13,7 +13,7 @@ spring:
     redis:
       host: ${bilibili.redis.host}
       port: ${bilibili.redis.port}
-      password: ${bilibili.redis.password}
+#      password: ${bilibili.redis.password}
       database: ${bilibili.redis.database}
       timeout: ${bilibili.redis.timeout}
       lettuce:

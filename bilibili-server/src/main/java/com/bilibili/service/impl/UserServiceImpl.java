@@ -94,6 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
                 .password(encryptPwd)
                 .salt(salt)
                 .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
                 .build();
 
         // 4.保存

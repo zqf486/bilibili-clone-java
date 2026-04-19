@@ -6,13 +6,17 @@ public class RedisConstant {
      */
     public static final long CACHE_NULL_TTL = 60;
     /**
+     * 永久缓存
+     */
+    public static final Long FOREVER_TTL = -1L;
+    /**
      * redis key 前缀
      */
-    private static final String REDIS_KEY_PREFIX = "bilibili:";
+    public static final String REDIS_KEY_PREFIX = "bilibili:";
     /**
      * redis cache 前缀
      */
-    private static final String REDIS_CACHE_PREFIX = "cache:";
+    public static final String REDIS_CACHE_PREFIX = "cache:";
     /**
      * 验证码 key
      */
@@ -37,4 +41,8 @@ public class RedisConstant {
      * UserInfoVO redis key 缓存前缀
      */
     public static final String CACHE_USER_KEY = REDIS_KEY_PREFIX + REDIS_CACHE_PREFIX + "user:";
+    /**
+     * Category redis key
+     */
+    public static final String CACHE_CATEGORY_KEY = REDIS_CACHE_PREFIX + "category";
 }
