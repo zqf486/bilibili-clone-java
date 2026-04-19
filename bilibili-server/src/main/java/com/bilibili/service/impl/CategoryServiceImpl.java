@@ -1,7 +1,6 @@
 package com.bilibili.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bilibili.constant.MessageConstant;
@@ -13,7 +12,6 @@ import com.bilibili.mapper.CategoryMapper;
 import com.bilibili.service.ICategoryService;
 import com.bilibili.util.RedisUtil;
 import com.bilibili.vo.CategoryVO;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -26,18 +24,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.baomidou.mybatisplus.core.toolkit.Wrappers.lambdaQuery;
-
 @Slf4j
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory> implements ICategoryService {
 
     @Resource
     private RedisUtil redisUtil;
-    
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-    
+
     @Resource
     private ObjectMapper objectMapper;
 
@@ -61,7 +57,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
                     return new ArrayList<>();
                 }
             }
-            
+
             // 解析JSON为List
             List<?> rawList = objectMapper.readValue(json, List.class);
             List<CategoryVO> list = new ArrayList<>();
@@ -69,7 +65,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
                 CategoryVO vo = objectMapper.convertValue(item, CategoryVO.class);
                 list.add(vo);
             }
-            
+
             // 过滤出状态为显示的分类（status == 1）
             return list.stream()
                     .filter(category -> category.getStatus() != null && category.getStatus() == 1)
@@ -85,7 +81,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
      */
     @Override
     public void rebuildCache() {
-        List<TbCategory> list = this.list();
+        List<TbCategory> list = lambdaQuery()
+                .orderByAsc(TbCategory::getSort)
+                .orderByAsc(TbCategory::getId)
+                .list();
         List<CategoryVO> voList = list.stream()
                 .map(category -> BeanUtil.copyProperties(category, CategoryVO.class))
                 .collect(Collectors.toList());
@@ -107,7 +106,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         if (exists) {
             throw new BusinessException(MessageConstant.CATEGORY_NAME_ALREADY_EXISTS);
         }
-        
+
         TbCategory tbCategory = BeanUtil.copyProperties(categoryDTO, TbCategory.class);
         tbCategory.setStatus((byte) 0);
         tbCategory.setCreateTime(LocalDateTime.now());
@@ -127,7 +126,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         if (categoryDTO.getId() == null) {
             throw new BusinessException(MessageConstant.CATEGORY_ID_CANNOT_BE_NULL);
         }
-        
+
         // 检查分类名称是否已存在（排除自身）
         boolean exists = lambdaQuery()
                 .eq(TbCategory::getName, categoryDTO.getName())
@@ -136,15 +135,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         if (exists) {
             throw new BusinessException(MessageConstant.CATEGORY_NAME_ALREADY_EXISTS);
         }
-        
+
         TbCategory tbCategory = BeanUtil.copyProperties(categoryDTO, TbCategory.class);
         tbCategory.setUpdateTime(LocalDateTime.now());
-        
+
         boolean updated = this.updateById(tbCategory);
         if (!updated) {
             throw new BusinessException(MessageConstant.CATEGORY_NOT_EXISTS_OR_UPDATE_FAILED);
         }
-        
+
         this.rebuildCache();
     }
 
@@ -159,12 +158,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         if (id == null) {
             throw new BusinessException(MessageConstant.CATEGORY_ID_CANNOT_BE_NULL);
         }
-        
+
         boolean removed = this.removeById(id);
         if (!removed) {
             throw new BusinessException(MessageConstant.CATEGORY_NOT_EXISTS_OR_DELETE_FAILED);
         }
-        
+
         this.rebuildCache();
     }
 
@@ -179,19 +178,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         if (id == null) {
             throw new BusinessException(MessageConstant.CATEGORY_ID_CANNOT_BE_NULL);
         }
-        
+
         TbCategory category = this.getById(id);
         if (category == null) {
             throw new BusinessException(MessageConstant.CATEGORY_NOT_EXISTS);
         }
-        
+
         Byte newStatus = (category.getStatus() == null || category.getStatus() == 0) ? (byte) 1 : (byte) 0;
-        
+
         LambdaUpdateWrapper<TbCategory> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(TbCategory::getId, id)
-                    .set(TbCategory::getStatus, newStatus)
-                    .set(TbCategory::getUpdateTime, LocalDateTime.now());
-        
+                .set(TbCategory::getStatus, newStatus)
+                .set(TbCategory::getUpdateTime, LocalDateTime.now());
+
         this.update(updateWrapper);
         this.rebuildCache();
     }
@@ -203,9 +202,58 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
      */
     @Override
     public List<CategoryVO> listAll() {
-        List<TbCategory> list = this.list();
+        List<TbCategory> list = lambdaQuery()
+                .orderByAsc(TbCategory::getSort)
+                .orderByAsc(TbCategory::getId)
+                .list();
         return list.stream()
                 .map(category -> BeanUtil.copyProperties(category, CategoryVO.class))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据ID获取分类详情（仅返回启用的分类）
+     *
+     * @param id 分类ID
+     * @return 分类信息，如果不存在或未启用则返回null
+     */
+    @Override
+    public CategoryVO getCategoryById(Integer id) {
+        if (id == null || id <= 0) {
+            return null;
+        }
+
+        try {
+            // 尝试从缓存获取分类列表
+            String key = RedisConstant.REDIS_KEY_PREFIX + RedisConstant.CACHE_CATEGORY_KEY;
+            String json = stringRedisTemplate.opsForValue().get(key);
+            if (json == null || json.isEmpty()) {
+                // 缓存不存在，重建缓存
+                this.rebuildCache();
+                json = stringRedisTemplate.opsForValue().get(key);
+                if (json == null || json.isEmpty()) {
+                    return null;
+                }
+            }
+
+            // 解析JSON为List
+            List<?> rawList = objectMapper.readValue(json, List.class);
+            List<CategoryVO> list = new ArrayList<>();
+            for (Object item : rawList) {
+                CategoryVO vo = objectMapper.convertValue(item, CategoryVO.class);
+                list.add(vo);
+            }
+
+            // 查找指定ID且状态为启用的分类
+            return list.stream()
+                    .filter(category -> category.getId() != null && category.getId().equals(id))
+                    .filter(category -> category.getStatus() != null && category.getStatus() == 1)
+                    .findFirst()
+                    .orElse(null);
+
+        } catch (Exception e) {
+            log.error("根据ID获取分类详情失败: {}", e.getMessage());
+            return null;
+        }
     }
 }

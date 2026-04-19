@@ -61,4 +61,12 @@ public interface ICategoryService extends IService<TbCategory> {
      * @return
      */
     List<CategoryVO> listAll();
+
+    /**
+     * 根据ID获取分类详情（仅返回启用的分类）
+     *
+     * @param id 分类ID
+     * @return 分类信息，如果不存在或未启用则返回null
+     */
+    CategoryVO getCategoryById(Integer id);
 }
