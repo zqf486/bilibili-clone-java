@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bilibili.constant.MessageConstant;
 import com.bilibili.constant.RedisConstant;
 import com.bilibili.dto.CategoryDTO;
 import com.bilibili.entity.TbCategory;
@@ -104,7 +105,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
                 .eq(TbCategory::getName, categoryDTO.getName())
                 .count() > 0;
         if (exists) {
-            throw new BusinessException("分类名称已存在");
+            throw new BusinessException(MessageConstant.CATEGORY_NAME_ALREADY_EXISTS);
         }
         
         TbCategory tbCategory = BeanUtil.copyProperties(categoryDTO, TbCategory.class);
@@ -124,7 +125,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
     @Transactional
     public void updateCategory(CategoryDTO categoryDTO) {
         if (categoryDTO.getId() == null) {
-            throw new BusinessException("分类ID不能为空");
+            throw new BusinessException(MessageConstant.CATEGORY_ID_CANNOT_BE_NULL);
         }
         
         // 检查分类名称是否已存在（排除自身）
@@ -133,7 +134,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
                 .ne(TbCategory::getId, categoryDTO.getId())
                 .count() > 0;
         if (exists) {
-            throw new BusinessException("分类名称已存在");
+            throw new BusinessException(MessageConstant.CATEGORY_NAME_ALREADY_EXISTS);
         }
         
         TbCategory tbCategory = BeanUtil.copyProperties(categoryDTO, TbCategory.class);
@@ -141,7 +142,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         
         boolean updated = this.updateById(tbCategory);
         if (!updated) {
-            throw new BusinessException("分类不存在或更新失败");
+            throw new BusinessException(MessageConstant.CATEGORY_NOT_EXISTS_OR_UPDATE_FAILED);
         }
         
         this.rebuildCache();
@@ -156,12 +157,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
     @Transactional
     public void deleteCategory(Integer id) {
         if (id == null) {
-            throw new BusinessException("分类ID不能为空");
+            throw new BusinessException(MessageConstant.CATEGORY_ID_CANNOT_BE_NULL);
         }
         
         boolean removed = this.removeById(id);
         if (!removed) {
-            throw new BusinessException("分类不存在或删除失败");
+            throw new BusinessException(MessageConstant.CATEGORY_NOT_EXISTS_OR_DELETE_FAILED);
         }
         
         this.rebuildCache();
@@ -176,12 +177,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
     @Transactional
     public void toggleStatus(Integer id) {
         if (id == null) {
-            throw new BusinessException("分类ID不能为空");
+            throw new BusinessException(MessageConstant.CATEGORY_ID_CANNOT_BE_NULL);
         }
         
         TbCategory category = this.getById(id);
         if (category == null) {
-            throw new BusinessException("分类不存在");
+            throw new BusinessException(MessageConstant.CATEGORY_NOT_EXISTS);
         }
         
         Byte newStatus = (category.getStatus() == null || category.getStatus() == 0) ? (byte) 1 : (byte) 0;
