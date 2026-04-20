@@ -1,6 +1,6 @@
 package com.bilibili.cache;
 
-import com.bilibili.service.impl.BloomFilterService;
+// import com.bilibili.service.impl.BloomFilterService;
 import com.bilibili.constant.RedisConstant;
 import com.bilibili.result.CacheResult;
 import com.bilibili.util.RedisUtil;
@@ -20,8 +20,8 @@ public class CacheClient {
     @Resource
     private RedisUtil redisUtil;
 
-    @Resource
-    private BloomFilterService bloomFilterService;
+//    @Resource
+//    private BloomFilterService bloomFilterService;
 
     /**
      * 逻辑过期
@@ -74,16 +74,16 @@ public class CacheClient {
             Long time
     ) {
 
-        // 0.布隆过滤器拦截
-        RBloomFilter<ID> bloomFilter = bloomFilterService.get(
-                keyPrefix + "bloom",
-                1000000,
-                0.01
-        );
+//        // 0.布隆过滤器拦截
+//        RBloomFilter<ID> bloomFilter = bloomFilterService.get(
+//                keyPrefix + "bloom",
+//                1000000,
+//                0.01
+//        );
 
-        if (!bloomFilter.contains(id)) {
-            return null;
-        }
+//        if (!bloomFilter.contains(id)) {
+//            return null;
+//        }
 
         CacheResult<R> cache = redisUtil.getCache(keyPrefix, id, type);
 
@@ -103,7 +103,7 @@ public class CacheClient {
             // 添加随机过期时间解决缓存雪崩
             long radomTTL = time + new Random().nextInt(RedisConstant.REDIS_KEY_RADOM_EXPIRES_RANGE);
             redisUtil.set(keyPrefix, id, r, radomTTL);
-            bloomFilter.add(id);
+            // bloomFilter.add(id);
             return r;
         }
 

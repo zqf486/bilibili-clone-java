@@ -1,4 +1,4 @@
-package com.bilibili.init;
+package com.bilibili.init.cache;
 
 import com.bilibili.service.ICategoryService;
 import jakarta.annotation.Resource;
