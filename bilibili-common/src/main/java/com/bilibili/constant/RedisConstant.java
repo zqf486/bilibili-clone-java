@@ -16,7 +16,7 @@ public class RedisConstant {
     /**
      * redis cache 前缀
      */
-    public static final String REDIS_CACHE_PREFIX = "cache:";
+    public static final String REDIS_CACHE_PREFIX = REDIS_KEY_PREFIX + "cache:";
     /**
      * 验证码 key
      */
@@ -40,7 +40,7 @@ public class RedisConstant {
     /**
      * UserInfoVO redis key 缓存前缀
      */
-    public static final String CACHE_USER_KEY = REDIS_KEY_PREFIX + REDIS_CACHE_PREFIX + "user:";
+    public static final String CACHE_USER_KEY = REDIS_CACHE_PREFIX + "user:";
     /**
      * Category redis key
      */

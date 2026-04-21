@@ -1,8 +1,11 @@
 package com.bilibili.cache;
 
 // import com.bilibili.service.impl.BloomFilterService;
+
+import com.bilibili.constant.BloomFilterConstant;
 import com.bilibili.constant.RedisConstant;
 import com.bilibili.result.CacheResult;
+import com.bilibili.service.IBloomFilterService;
 import com.bilibili.util.RedisUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +23,8 @@ public class CacheClient {
     @Resource
     private RedisUtil redisUtil;
 
-//    @Resource
-//    private BloomFilterService bloomFilterService;
+    @Resource
+    private IBloomFilterService bloomFilterService;
 
     /**
      * 逻辑过期
@@ -74,16 +77,16 @@ public class CacheClient {
             Long time
     ) {
 
-//        // 0.布隆过滤器拦截
-//        RBloomFilter<ID> bloomFilter = bloomFilterService.get(
-//                keyPrefix + "bloom",
-//                1000000,
-//                0.01
-//        );
+        // 0.布隆过滤器拦截
+        RBloomFilter<ID> bloomFilter = bloomFilterService.getFilter(
+                keyPrefix,
+                BloomFilterConstant.DEFAULT_EXPECTED_INSERTIONS,
+                BloomFilterConstant.DEFAULT_FALSE_PROBABILITY
+        );
 
-//        if (!bloomFilter.contains(id)) {
-//            return null;
-//        }
+        if(!bloomFilter.contains(id)){
+            return null;
+        }
 
         CacheResult<R> cache = redisUtil.getCache(keyPrefix, id, type);
 
