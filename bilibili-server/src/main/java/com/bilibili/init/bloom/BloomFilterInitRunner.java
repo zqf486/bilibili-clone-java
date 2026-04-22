@@ -16,15 +16,17 @@ public class BloomFilterInitRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (preLoaders == null || preLoaders.isEmpty()){
+        if (preLoaders == null || preLoaders.isEmpty()) {
             log.info("没用找到布隆过滤器预热器");
             return;
         }
 
-        for (BloomFilterPreLoader preLoader : preLoaders){
+        log.info("开始进行布隆过滤器预热");
+
+        for (BloomFilterPreLoader preLoader : preLoaders) {
             try {
                 preLoader.preload();
-            } catch (Exception e){
+            } catch (Exception e) {
                 log.error("布隆过滤器预热失败", e);
             }
         }
