@@ -1,5 +1,6 @@
 package com.bilibili.util;
 
+import com.bilibili.constant.CacheConstant;
 import com.bilibili.result.CacheResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,23 +25,17 @@ public class RedisUtil {
      * @param key
      * @param timeout 单位 (s)
      */
-    public <T, ID> void set(String keyPrefix, ID key, T value, Long timeout) {
+    public <T> void set(String key, T value, Long timeout) {
         try {
-            // 1.空值缓存
-            if("".equals(value)){
-                stringRedisTemplate.opsForValue().set(keyPrefix + key, "", timeout, TimeUnit.SECONDS);
-                return;
-            }
 
-            // 2.正常缓存
             String json = objectMapper.writeValueAsString(value);
 
             if (timeout < 0) {
-                stringRedisTemplate.opsForValue().set(keyPrefix + key, json);
+                stringRedisTemplate.opsForValue().set(key, json);
                 return;
             }
 
-            stringRedisTemplate.opsForValue().set(keyPrefix + key, json, timeout, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set(key, json, timeout, TimeUnit.SECONDS);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -53,16 +48,16 @@ public class RedisUtil {
      * @param key
      * @return
      */
-    public <T> T get(String keyPrefix, String key, Class<T> clazz) {
+    public <T> T get(String key, Class<T> clazz) {
         try {
 
-            String json = stringRedisTemplate.opsForValue().get(keyPrefix + key);
+            String json = stringRedisTemplate.opsForValue().get(key);
 
             if (json == null) {
                 return null;
             }
 
-            if ("".equals(json)) {
+            if (CacheConstant.NULL.equals(json)) {
                 return null;
             }
 
@@ -74,6 +69,21 @@ public class RedisUtil {
     }
 
     /**
+     * 缓存空值
+     *
+     * @param key
+     * @param timeout
+     */
+    public void cacheNull(String key, Long timeout) {
+
+        if (timeout < 0) {
+            return;
+        }
+
+        stringRedisTemplate.opsForValue().set(key, CacheConstant.NULL, timeout, TimeUnit.SECONDS);
+    }
+
+    /**
      * 根据 key 读取缓存
      *
      * @param key   缓存key
@@ -82,15 +92,15 @@ public class RedisUtil {
      * @return
      * @throws JsonProcessingException
      */
-    public <R, ID> CacheResult<R> getCache(String keyPrefix, ID key, Class<R> clazz) {
+    public <R> CacheResult<R> getCache(String key, Class<R> clazz) {
         try {
-            String json = stringRedisTemplate.opsForValue().get(keyPrefix + key);
+            String json = stringRedisTemplate.opsForValue().get(key);
 
             if (json == null) {
                 return new CacheResult<>(false, false, null);
             }
 
-            if ("".equals(json)) {
+            if (CacheConstant.NULL.equals(json)) {
                 return new CacheResult<>(true, true, null);
             }
 

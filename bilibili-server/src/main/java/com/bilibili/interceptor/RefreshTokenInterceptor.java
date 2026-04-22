@@ -2,6 +2,7 @@ package com.bilibili.interceptor;
 
 import com.bilibili.constant.CookieConstant;
 import com.bilibili.constant.RedisConstant;
+import com.bilibili.constant.TokenConstant;
 import com.bilibili.context.UserContext;
 import com.bilibili.util.RedisUtil;
 import com.bilibili.vo.UserLoginVO;
@@ -38,7 +39,7 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        UserLoginVO user = (UserLoginVO) redisUtil.get(RedisConstant.REDIS_TOKEN_KEY_WEB, token, UserLoginVO.class);
+        UserLoginVO user = redisUtil.get(TokenConstant.REDIS_TOKEN_KEY_WEB + token, UserLoginVO.class);
 
         // 2. token 过期，直接放行
         if (user == null) {
@@ -49,9 +50,9 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
         UserContext.set(user);
 
         // 4.滑动过期
-        Long ttl = redisUtil.getExpire(RedisConstant.REDIS_TOKEN_KEY_WEB, token);
+        Long ttl = redisUtil.getExpire(TokenConstant.REDIS_TOKEN_KEY_WEB, token);
         if (ttl != null && ttl > 0 && ttl < RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY / 2) {
-            redisUtil.expire(RedisConstant.REDIS_TOKEN_KEY_WEB, token, RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY);
+            redisUtil.expire(TokenConstant.REDIS_TOKEN_KEY_WEB, token, RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY);
             // 4.1.同步刷新cookie
             refreshCookie(response, token);
         }
