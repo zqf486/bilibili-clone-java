@@ -27,16 +27,19 @@ CREATE TABLE `tb_user`
 
 CREATE TABLE `tb_category`
 (
-    `id`          INT         NOT NULL AUTO_INCREMENT COMMENT '分类ID（主键）',
-    `name`        VARCHAR(50) NOT NULL COMMENT '分类名称（如：科技、游戏）',
-    `sort`        INT                  DEFAULT 0 COMMENT '排序字段（数值越小越靠前）',
-    `status`      TINYINT              DEFAULT 0 COMMENT '状态：1显示 0隐藏',
-    `create_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `id`            INT(11) NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+    `code`          VARCHAR(50) NOT NULL COMMENT '分类编码',
+    `name`          VARCHAR(50) NOT NULL COMMENT '分类名称',
+    `p_category_id` INT(11) DEFAULT NULL COMMENT '父分类ID',
+    `icon`          VARCHAR(255) DEFAULT NULL COMMENT '图标',
+    `background`    VARCHAR(255) DEFAULT NULL COMMENT '背景图',
+    `sort`          INT DEFAULT 0 COMMENT '排序',
+    `status`        TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
+    `create_time`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_name` (`name`) COMMENT '分类名称唯一'
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci
-    COMMENT ='视频分区表';
+    UNIQUE KEY `uk_code` (`code`),
+    KEY `idx_parent_id` (`p_category_id`),
+    KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='视频分区表';
