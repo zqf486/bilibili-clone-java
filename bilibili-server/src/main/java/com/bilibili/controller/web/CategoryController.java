@@ -22,34 +22,4 @@ public class CategoryController {
 
     @Resource
     private ICategoryService categoryService;
-
-    /**
-     * 获取展示列表（仅返回启用的分类）
-     *
-     * @return
-     */
-    @Operation(summary = "获取分类列表")
-    @GetMapping
-    public Result list() {
-        log.info("获取分类列表");
-        List<CategoryVO> categories = categoryService.listWithStatus();
-        return Result.success(categories);
-    }
-
-    /**
-     * 根据ID获取分类详情
-     *
-     * @param id 分类ID
-     * @return
-     */
-    @Operation(summary = "根据ID获取分类详情")
-    @GetMapping("/{id}")
-    public Result getById(@PathVariable Integer id) {
-        log.info("根据ID获取分类详情: {}", id);
-        CategoryVO category = categoryService.getCategoryById(id);
-        if (category == null) {
-            return Result.success();
-        }
-        return Result.success(category);
-    }
 }
