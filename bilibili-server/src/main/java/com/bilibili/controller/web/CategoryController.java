@@ -2,13 +2,12 @@ package com.bilibili.controller.web;
 
 import com.bilibili.result.Result;
 import com.bilibili.service.ICategoryService;
-import com.bilibili.vo.CategoryVO;
+import com.bilibili.vo.CategoryTreeVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,4 +21,15 @@ public class CategoryController {
 
     @Resource
     private ICategoryService categoryService;
+
+    /**
+     * 获取所有启用分类
+     *
+     * @return
+     */
+    @Operation(summary = "获取所有启用分类（树形）")
+    @GetMapping
+    public Result<List<CategoryTreeVO>> listEnabledTree() {
+        return Result.success();
+    }
 }
