@@ -6,8 +6,7 @@ import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bilibili.cache.CacheClient;
-import com.bilibili.constant.MessageConstant;
-import com.bilibili.constant.RedisConstant;
+import com.bilibili.constant.*;
 import com.bilibili.context.UserContext;
 import com.bilibili.dto.LoginDTO;
 import com.bilibili.dto.RegisterDTO;
@@ -16,12 +15,15 @@ import com.bilibili.enumeration.UserStatusEnum;
 import com.bilibili.exception.AuthException;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.mapper.UserMapper;
+import com.bilibili.service.IBloomFilterService;
 import com.bilibili.service.ICheckCodeService;
 import com.bilibili.service.IUserService;
 import com.bilibili.util.RedisUtil;
 import com.bilibili.vo.UserInfoVO;
 import com.bilibili.vo.UserLoginVO;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBloomFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ import java.time.LocalDateTime;
  * @author zqf486
  * @since 2026-03-20
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements IUserService {
 
@@ -43,6 +46,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
 
     @Resource
     private ICheckCodeService checkCodeService;
+
+    @Resource
+    private IBloomFilterService bloomFilterService;
 
     @Resource
     private RedisUtil redisUtil;
@@ -154,7 +160,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
                 .build();
 
         // 6. 保存返回对象到 redis
-        redisUtil.set(RedisConstant.REDIS_TOKEN_KEY_WEB, token, userLoginVO, RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY);
+        redisUtil.set(TokenConstant.REDIS_TOKEN_KEY_WEB + token, userLoginVO, RedisConstant.REDIS_KEY_EXPIRES_ONE_DAY);
 
         return userLoginVO;
     }
@@ -171,7 +177,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
         }
 
         // 1.清除 redis 登录状态
-        redisUtil.delete(RedisConstant.REDIS_TOKEN_KEY_WEB, userLoginVO.getToken());
+        redisUtil.delete(TokenConstant.REDIS_TOKEN_KEY_WEB, userLoginVO.getToken());
     }
 
     /**
@@ -184,13 +190,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
     @Override
     public UserInfoVO getUserById(Long id) {
         TbUser tbUser = cacheClient.queryWithPassThrough(
-                RedisConstant.CACHE_USER_KEY,
+                CacheConstant.USER_KEY,
                 id,
                 TbUser.class,
                 userMapper::selectById,
-                RedisConstant.REDIS_KEY_EXPIRES_ONE_MIN * 30
+                RedisConstant.REDIS_KEY_EXPIRES_ONE_MIN * 30,
+                bloomFilterService.getFilter(
+                        BloomFilterConstant.USER_KEY,
+                        BloomFilterConstant.DEFAULT_EXPECTED_INSERTIONS,
+                        BloomFilterConstant.DEFAULT_FALSE_PROBABILITY
+                )
         );
         UserInfoVO userInfoVO = BeanUtil.copyProperties(tbUser, UserInfoVO.class);
+
         return userInfoVO;
     }
 }

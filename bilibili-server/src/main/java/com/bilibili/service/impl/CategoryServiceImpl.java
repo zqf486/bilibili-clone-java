@@ -3,6 +3,7 @@ package com.bilibili.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bilibili.constant.CacheConstant;
 import com.bilibili.constant.MessageConstant;
 import com.bilibili.constant.RedisConstant;
 import com.bilibili.dto.CategoryDTO;
@@ -38,42 +39,42 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
     private ObjectMapper objectMapper;
 
     /**
-     * 获取启用的分类
+     * TODO: 获取启用的分类
      * 只读取redis缓存, 不操作db
      *
      * @return
      */
     @Override
     public List<CategoryVO> listWithStatus() {
-        try {
-            // 尝试从缓存获取
-            String key = RedisConstant.REDIS_KEY_PREFIX + RedisConstant.CACHE_CATEGORY_KEY;
-            String json = stringRedisTemplate.opsForValue().get(key);
-            if (json == null || json.isEmpty()) {
-                // 缓存不存在，重建缓存
-                this.rebuildCache();
-                json = stringRedisTemplate.opsForValue().get(key);
-                if (json == null || json.isEmpty()) {
-                    return new ArrayList<>();
-                }
-            }
-
-            // 解析JSON为List
-            List<?> rawList = objectMapper.readValue(json, List.class);
-            List<CategoryVO> list = new ArrayList<>();
-            for (Object item : rawList) {
-                CategoryVO vo = objectMapper.convertValue(item, CategoryVO.class);
-                list.add(vo);
-            }
-
-            // 过滤出状态为显示的分类（status == 1）
-            return list.stream()
-                    .filter(category -> category.getStatus() != null && category.getStatus() == 1)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error("从缓存获取分类列表失败: {}", e.getMessage());
-            return new ArrayList<>();
-        }
+//        try {
+//            // 尝试从缓存获取
+//            String json = stringRedisTemplate.opsForValue().get()
+//            if (json == null || json.isEmpty()) {
+//                // 缓存不存在，重建缓存
+//                this.rebuildCache();
+//                json = stringRedisTemplate.opsForValue().get(key);
+//                if (json == null || json.isEmpty()) {
+//                    return new ArrayList<>();
+//                }
+//            }
+//
+//            // 解析JSON为List
+//            List<?> rawList = objectMapper.readValue(json, List.class);
+//            List<CategoryVO> list = new ArrayList<>();
+//            for (Object item : rawList) {
+//                CategoryVO vo = objectMapper.convertValue(item, CategoryVO.class);
+//                list.add(vo);
+//            }
+//
+//            // 过滤出状态为显示的分类（status == 1）
+//            return list.stream()
+//                    .filter(category -> category.getStatus() != null && category.getStatus() == 1)
+//                    .collect(Collectors.toList());
+//        } catch (Exception e) {
+//            log.error("从缓存获取分类列表失败: {}", e.getMessage());
+//            return new ArrayList<>();
+//        }
+        return null;
     }
 
     /**
@@ -88,7 +89,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         List<CategoryVO> voList = list.stream()
                 .map(category -> BeanUtil.copyProperties(category, CategoryVO.class))
                 .collect(Collectors.toList());
-        redisUtil.set(RedisConstant.REDIS_KEY_PREFIX, RedisConstant.CACHE_CATEGORY_KEY, voList, RedisConstant.FOREVER_TTL);
+        for(CategoryVO category : voList){
+            redisUtil.set(
+                    CacheConstant.CATEGORY_KEY + category.getId(),
+                    category,
+                    RedisConstant.FOREVER_TTL);
+        }
+
     }
 
     /**
@@ -212,48 +219,49 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
     }
 
     /**
-     * 根据ID获取分类详情（仅返回启用的分类）
+     * TODO: 根据ID获取分类详情（仅返回启用的分类）
      *
      * @param id 分类ID
      * @return 分类信息，如果不存在或未启用则返回null
      */
     @Override
     public CategoryVO getCategoryById(Integer id) {
-        if (id == null || id <= 0) {
-            return null;
-        }
-
-        try {
-            // 尝试从缓存获取分类列表
-            String key = RedisConstant.REDIS_KEY_PREFIX + RedisConstant.CACHE_CATEGORY_KEY;
-            String json = stringRedisTemplate.opsForValue().get(key);
-            if (json == null || json.isEmpty()) {
-                // 缓存不存在，重建缓存
-                this.rebuildCache();
-                json = stringRedisTemplate.opsForValue().get(key);
-                if (json == null || json.isEmpty()) {
-                    return null;
-                }
-            }
-
-            // 解析JSON为List
-            List<?> rawList = objectMapper.readValue(json, List.class);
-            List<CategoryVO> list = new ArrayList<>();
-            for (Object item : rawList) {
-                CategoryVO vo = objectMapper.convertValue(item, CategoryVO.class);
-                list.add(vo);
-            }
-
-            // 查找指定ID且状态为启用的分类
-            return list.stream()
-                    .filter(category -> category.getId() != null && category.getId().equals(id))
-                    .filter(category -> category.getStatus() != null && category.getStatus() == 1)
-                    .findFirst()
-                    .orElse(null);
-
-        } catch (Exception e) {
-            log.error("根据ID获取分类详情失败: {}", e.getMessage());
-            return null;
-        }
+//        if (id == null || id <= 0) {
+//            return null;
+//        }
+//
+//        try {
+//            // 尝试从缓存获取分类列表
+//            String key = RedisConstant.REDIS_KEY_PREFIX + RedisConstant.CACHE_CATEGORY_KEY;
+//            String json = stringRedisTemplate.opsForValue().get(key);
+//            if (json == null || json.isEmpty()) {
+//                // 缓存不存在，重建缓存
+//                this.rebuildCache();
+//                json = stringRedisTemplate.opsForValue().get(key);
+//                if (json == null || json.isEmpty()) {
+//                    return null;
+//                }
+//            }
+//
+//            // 解析JSON为List
+//            List<?> rawList = objectMapper.readValue(json, List.class);
+//            List<CategoryVO> list = new ArrayList<>();
+//            for (Object item : rawList) {
+//                CategoryVO vo = objectMapper.convertValue(item, CategoryVO.class);
+//                list.add(vo);
+//            }
+//
+//            // 查找指定ID且状态为启用的分类
+//            return list.stream()
+//                    .filter(category -> category.getId() != null && category.getId().equals(id))
+//                    .filter(category -> category.getStatus() != null && category.getStatus() == 1)
+//                    .findFirst()
+//                    .orElse(null);
+//
+//        } catch (Exception e) {
+//            log.error("根据ID获取分类详情失败: {}", e.getMessage());
+//            return null;
+//        }
+        return null;
     }
 }

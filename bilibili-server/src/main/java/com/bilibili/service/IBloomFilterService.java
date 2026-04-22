@@ -3,6 +3,7 @@ package com.bilibili.service;
 import org.redisson.api.RBloomFilter;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * 布隆过滤器服务接口

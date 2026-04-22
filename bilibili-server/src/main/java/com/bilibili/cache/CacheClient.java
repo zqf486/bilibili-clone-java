@@ -1,11 +1,8 @@
 package com.bilibili.cache;
 
-// import com.bilibili.service.impl.BloomFilterService;
-
-import com.bilibili.constant.BloomFilterConstant;
+import com.bilibili.constant.CacheConstant;
 import com.bilibili.constant.RedisConstant;
 import com.bilibili.result.CacheResult;
-import com.bilibili.service.IBloomFilterService;
 import com.bilibili.util.RedisUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +19,6 @@ public class CacheClient {
 
     @Resource
     private RedisUtil redisUtil;
-
-    @Resource
-    private IBloomFilterService bloomFilterService;
 
     /**
      * 逻辑过期
@@ -44,15 +38,13 @@ public class CacheClient {
      * 防缓存雪崩
      * 解决: 大量key同时过期 → 雪崩
      *
-     * @param keyPrefix
      * @param key
      * @param value
      * @param time
      */
-    public void setWithRandomTTL(String keyPrefix, String key, Object value, Long time) {
-
+    public void setWithRandomTTL(String key, Object value, Long time) {
         long radomTTL = time + new Random().nextInt(RedisConstant.REDIS_KEY_RADOM_EXPIRES_RANGE);
-        redisUtil.set(keyPrefix, key, value, time);
+        redisUtil.set(key, value, radomTTL);
     }
 
     /**
@@ -60,35 +52,33 @@ public class CacheClient {
      * 防缓存穿透
      * 普通查询接口（用户 / 商品）
      *
-     * @param keyPrefix  redis key前缀
-     * @param id         主键
-     * @param type       类型
-     * @param dbFallback 查询函数
-     * @param time       过期时间
-     * @param <R>        查询函数返回类型
-     * @param <ID>       查询函数参数
+     * @param keyPrefix   redis key前缀
+     * @param id          主键
+     * @param clazz       类型
+     * @param dbFallback  查询函数
+     * @param time        过期时间
+     * @param bloomFilter 布隆过滤器
+     * @param <R>         查询函数返回类型
+     * @param <ID>        查询函数参数
      * @return 查询结果
      */
     public <R, ID> R queryWithPassThrough(
             String keyPrefix,
             ID id,
-            Class<R> type,
+            Class<R> clazz,
             Function<ID, R> dbFallback,
-            Long time
+            Long time,
+            RBloomFilter<ID> bloomFilter
     ) {
 
-        // 0.布隆过滤器拦截
-        RBloomFilter<ID> bloomFilter = bloomFilterService.getFilter(
-                keyPrefix,
-                BloomFilterConstant.DEFAULT_EXPECTED_INSERTIONS,
-                BloomFilterConstant.DEFAULT_FALSE_PROBABILITY
-        );
+        String key = keyPrefix + id;
 
-        if(!bloomFilter.contains(id)){
+        // 0.布隆过滤器拦截
+        if (bloomFilter != null && !bloomFilter.contains(id)) {
             return null;
         }
 
-        CacheResult<R> cache = redisUtil.getCache(keyPrefix, id, type);
+        CacheResult<R> cache = redisUtil.getCache(key, clazz);
 
         // 1.缓存命中返回
         if (cache.isExist()) {
@@ -105,13 +95,12 @@ public class CacheClient {
         if (r != null) {
             // 添加随机过期时间解决缓存雪崩
             long radomTTL = time + new Random().nextInt(RedisConstant.REDIS_KEY_RADOM_EXPIRES_RANGE);
-            redisUtil.set(keyPrefix, id, r, radomTTL);
-            // bloomFilter.add(id);
+            redisUtil.set(key, r, radomTTL);
             return r;
         }
 
         // 2.2.数据库未命中设置空值并返回
-        redisUtil.set(keyPrefix, id, "", RedisConstant.CACHE_NULL_TTL);
+        redisUtil.cacheNull(key, CacheConstant.CACHE_NULL_TTL);
 
         return null;
     }
@@ -144,5 +133,4 @@ public class CacheClient {
     public void unlock(String key) {
 
     }
-
 }

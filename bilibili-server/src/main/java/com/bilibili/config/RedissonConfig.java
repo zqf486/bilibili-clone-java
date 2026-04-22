@@ -5,6 +5,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 
+@Deprecated
 public class RedissonConfig {
 
     @Value("${spring.data.redis.host}")
