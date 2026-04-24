@@ -1,7 +1,7 @@
 package com.bilibili.controller.admin;
 
 import cn.hutool.db.PageResult;
-import com.bilibili.dto.CategoryDTO;
+import com.bilibili.dto.CategoryCreateDTO;
 import com.bilibili.result.Result;
 import com.bilibili.service.ICategoryService;
 import com.bilibili.vo.CategoryAdminVO;
@@ -48,7 +48,8 @@ public class CategoryAdminController {
      */
     @Operation(summary = "创建分类")
     @PostMapping
-    public Result create(@RequestBody CategoryDTO categoryDTO) {
+    public Result create(@RequestBody CategoryCreateDTO categoryDTO) {
+        categoryService.create(categoryDTO);
         return Result.success();
     }
 
@@ -63,7 +64,7 @@ public class CategoryAdminController {
     @PutMapping("/{id}")
     public Result modify(
             @PathVariable Long id,
-            @RequestBody CategoryDTO categoryDTO
+            @RequestBody CategoryCreateDTO categoryDTO
     ) {
         return Result.success();
     }
