@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,52 +17,67 @@ import java.time.LocalDateTime;
  * </p>
  *
  * @author zqf486
- * @since 2026-04-07
+ * @since 2026-04-25
  */
 @Getter
 @Setter
 @ToString
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @TableName("tb_category")
 public class TbCategory implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 分类ID（主键）
+     * 分类ID
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 分类名称（如：科技、游戏）
+     * 分类编码
+     */
+    @TableField("code")
+    private String code;
+
+    /**
+     * 分类名称
      */
     @TableField("name")
     private String name;
 
     /**
-     * 排序字段（数值越小越靠前）
+     * 父分类ID
+     */
+    @TableField("p_category_id")
+    private Integer pCategoryId;
+
+    /**
+     * 图标
+     */
+    @TableField("icon")
+    private String icon;
+
+    /**
+     * 背景图
+     */
+    @TableField("background")
+    private String background;
+
+    /**
+     * 排序
      */
     @TableField("sort")
     private Integer sort;
 
     /**
-     * 状态：1显示 0隐藏
+     * 1启用 0禁用
      */
     @TableField("status")
     private Byte status;
 
-    /**
-     * 创建时间
-     */
     @TableField("create_time")
     private LocalDateTime createTime;
 
-    /**
-     * 更新时间
-     */
     @TableField("update_time")
     private LocalDateTime updateTime;
 }
