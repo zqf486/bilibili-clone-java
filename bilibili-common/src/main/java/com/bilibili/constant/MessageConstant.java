@@ -14,9 +14,11 @@ public class MessageConstant {
     public static final String HTTP_MESSAGE_NOT_READABLE = "请求体错误 / 缺失";
     
     // 分类相关
+    public static final String P_CATEGORY_NOT_EXISTS = "父分类不存在";
     public static final String CATEGORY_NAME_ALREADY_EXISTS = "分类名称已存在";
     public static final String CATEGORY_ID_CANNOT_BE_NULL = "分类ID不能为空";
     public static final String CATEGORY_NOT_EXISTS_OR_UPDATE_FAILED = "分类不存在或更新失败";
     public static final String CATEGORY_NOT_EXISTS_OR_DELETE_FAILED = "分类不存在或删除失败";
     public static final String CATEGORY_NOT_EXISTS = "分类不存在";
+    public static final String P_CATEGORY_ILLEGAL = "父分类不合法";
 }

@@ -1,8 +1,6 @@
 package com.bilibili.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
 import lombok.Data;
 
 @Data

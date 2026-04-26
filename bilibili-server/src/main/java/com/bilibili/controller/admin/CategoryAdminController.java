@@ -100,6 +100,7 @@ public class CategoryAdminController {
     @Operation(summary = "获取完整树形结构")
     @GetMapping("/tree")
     public Result tree() {
+        categoryService.tree();
         return Result.success();
     }
 }

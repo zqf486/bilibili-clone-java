@@ -1,18 +1,21 @@
 package com.bilibili.service.impl;
 
-import cn.hutool.Hutool;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.bilibili.constant.MessageConstant;
 import com.bilibili.dto.CategoryCreateDTO;
 import com.bilibili.entity.TbCategory;
 import com.bilibili.exception.BusinessException;
 import com.bilibili.mapper.CategoryMapper;
 import com.bilibili.service.ICategoryService;
 import com.bilibili.util.RedisUtil;
+import com.bilibili.vo.CategoryVO;
 import jakarta.annotation.Resource;
-import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -26,7 +29,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
 
     /**
      * 创建分类
-     * TODO: 设置默认图标与背景
+     * TODO: 设置默认图标与背景 redis缓存重建
      *
      * @param categoryCreateDTO
      */
@@ -35,11 +38,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
 
         // 1.检查父分类id是否合法
         if (categoryCreateDTO.getPCategoryId() != null) {
-            boolean exists = this.lambdaQuery()
+            TbCategory pCategory = this.lambdaQuery()
                     .eq(TbCategory::getId, categoryCreateDTO.getPCategoryId())
-                    .exists();
-            if(!exists){
-                throw new BusinessException("父分类不存在");
+                    .one();
+            if (pCategory == null) {
+                throw new BusinessException(MessageConstant.P_CATEGORY_NOT_EXISTS);
+            }
+            if (pCategory.getPCategoryId() != null) {
+                throw new BusinessException(MessageConstant.P_CATEGORY_ILLEGAL);
             }
         }
 
@@ -55,6 +61,46 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
         // 5.设置背景
         tbCategory.setBackground("");
 
+        // 6.保存
         this.save(tbCategory);
+    }
+
+    /**
+     * 获取完整分类树结构
+     */
+    @Override
+    public List<CategoryVO> tree() {
+        return buildTree(this.list());
+    }
+
+    /**
+     * 根据TbCategory数据表生成树
+     *
+     * @param list List<TbCategory> list
+     * @return List<CategoryVO> tree
+     */
+    private List<CategoryVO> buildTree(List<TbCategory> list) {
+
+        if (list == null) {
+            return null;
+        }
+
+        // 1.获取一级节点
+        List<CategoryVO> parents = list.stream()
+                .filter(tb -> tb.getPCategoryId() == null)
+                .map(tb -> BeanUtil.copyProperties(tb, CategoryVO.class))
+                .toList();
+
+        // 2.为一级节点找子节点
+        for (CategoryVO parent : parents) {
+            List<CategoryVO> children = list.stream()
+                    .filter(tb -> tb.getPCategoryId().equals(parent.getId()))
+                    .map(tb -> BeanUtil.copyProperties(tb, CategoryVO.class))
+                    .toList();
+
+            parent.setChildren(children);
+        }
+
+        return parents;
     }
 }
