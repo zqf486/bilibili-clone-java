@@ -5,11 +5,14 @@ import com.bilibili.dto.CategoryCreateDTO;
 import com.bilibili.result.Result;
 import com.bilibili.service.ICategoryService;
 import com.bilibili.vo.CategoryAdminVO;
+import com.bilibili.vo.CategoryVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "CategoryAdminController")
 @Slf4j
@@ -100,7 +103,7 @@ public class CategoryAdminController {
     @Operation(summary = "获取完整树形结构")
     @GetMapping("/tree")
     public Result tree() {
-        categoryService.tree();
-        return Result.success();
+        List<CategoryVO> tree = categoryService.tree();
+        return Result.success(tree);
     }
 }

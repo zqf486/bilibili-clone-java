@@ -17,6 +17,6 @@ public class CacheConstant {
     /**
      * 业务key名称
      */
-    public static final String CATEGORY_KEY = CACHE_KEY_PREFIX + "category:";
     public static final String USER_KEY = CACHE_KEY_PREFIX + "user:";
+    public static final String CATEGORY_TREE_KEY = CACHE_KEY_PREFIX + "category:tree";
 }
