@@ -177,7 +177,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, TbUser> implements 
         }
 
         // 1.清除 redis 登录状态
-        redisUtil.delete(TokenConstant.REDIS_TOKEN_KEY_WEB, userLoginVO.getToken());
+        redisUtil.delete(TokenConstant.REDIS_TOKEN_KEY_WEB + userLoginVO.getToken());
     }
 
     /**

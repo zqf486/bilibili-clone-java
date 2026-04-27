@@ -119,8 +119,8 @@ public class RedisUtil {
      * @param key
      * @return
      */
-    public boolean delete(String keyPrefix, String key) {
-        return stringRedisTemplate.delete(keyPrefix + key);
+    public boolean delete(String key) {
+        return stringRedisTemplate.delete(key);
     }
 
     /**
