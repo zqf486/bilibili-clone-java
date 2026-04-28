@@ -30,6 +30,8 @@
         <freemarker>2.3.32</freemarker>
         <springdoc>2.5.0</springdoc>
         <commonsPool2>2.11.1</commonsPool2>
+        <redission>3.52.0</redission>
+        <minio>8.4.3</minio>
     </properties>
 
     <dependencyManagement>
@@ -80,7 +82,13 @@
             <dependency>
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
-                <version>3.52.0</version>
+                <version>${redission}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
