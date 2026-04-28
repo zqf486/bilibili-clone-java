@@ -27,19 +27,51 @@ CREATE TABLE `tb_user`
 
 CREATE TABLE `tb_category`
 (
-    `id`            INT(11) NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+    `id`            INT(11)     NOT NULL AUTO_INCREMENT COMMENT '分类ID',
     `code`          VARCHAR(50) NOT NULL COMMENT '分类编码',
     `name`          VARCHAR(50) NOT NULL COMMENT '分类名称',
-    `p_category_id` INT(11) DEFAULT NULL COMMENT '父分类ID',
-    `icon`          VARCHAR(255) DEFAULT NULL COMMENT '图标',
-    `background`    VARCHAR(255) DEFAULT NULL COMMENT '背景图',
-    `sort`          INT DEFAULT 0 COMMENT '排序',
-    `status`        TINYINT DEFAULT 1 COMMENT '1启用 0禁用',
-    `create_time`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `update_time`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `p_category_id` INT(11)              DEFAULT NULL COMMENT '父分类ID',
+    `icon`          VARCHAR(255)         DEFAULT NULL COMMENT '图标',
+    `background`    VARCHAR(255)         DEFAULT NULL COMMENT '背景图',
+    `sort`          INT                  DEFAULT 0 COMMENT '排序',
+    `status`        TINYINT              DEFAULT 1 COMMENT '1启用 0禁用',
+    `create_time`   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_parent_id` (`p_category_id`),
     KEY `idx_status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='视频分区表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='视频分区表';
+
+CREATE TABLE `tb_video`
+(
+    `id`          BIGINT       NOT NULL COMMENT '视频ID（主键）',
+    `title`       VARCHAR(100) NOT NULL COMMENT '视频标题',
+    `description` VARCHAR(2000)         DEFAULT NULL COMMENT '视频简介',
+    `url`         VARCHAR(500) NOT NULL COMMENT '视频文件地址',
+    `cover`       VARCHAR(500)          DEFAULT NULL COMMENT '封面图',
+    `category_id` INT(11)               DEFAULT NULL COMMENT '分类ID',
+    `user_id`     BIGINT       NOT NULL COMMENT '发布者ID',
+    `duration`    INT(11)               DEFAULT 0 COMMENT '视频时长（秒）',
+    `status`      TINYINT               DEFAULT 0 COMMENT '状态：0待审核 1已发布 2审核不通过 3私密',
+    `views`       INT(11)               DEFAULT 0 COMMENT '播放量',
+    `likes`       INT(11)               DEFAULT 0 COMMENT '点赞数',
+    `favorites`   INT(11)               DEFAULT 0 COMMENT '收藏数',
+    `coins`       INT(11)               DEFAULT 0 COMMENT '硬币数',
+    `comments`    INT(11)               DEFAULT 0 COMMENT '评论数',
+    `tags`        VARCHAR(500)          DEFAULT NULL COMMENT '标签（逗号分隔）',
+    `is_delete`   TINYINT               DEFAULT 0 COMMENT '逻辑删除：0未删除 1已删除',
+    `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+    PRIMARY KEY (`id`),
+    KEY `idx_category_id` (`category_id`),
+    KEY `idx_user_id` (`user_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_create_time` (`create_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+    COMMENT ='视频表';
