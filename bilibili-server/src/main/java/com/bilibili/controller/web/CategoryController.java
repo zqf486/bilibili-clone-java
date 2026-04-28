@@ -30,7 +30,7 @@ public class CategoryController {
     @Operation(summary = "获取所有启用分类（树形）")
     @GetMapping
     public Result<List<CategoryVO>> listEnabledTree() {
-        List<CategoryVO> tree = categoryService.tree();
+        List<CategoryVO> tree = categoryService.treeWithEnabled();
         return Result.success(tree);
     }
 }

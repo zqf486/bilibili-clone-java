@@ -148,6 +148,25 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
     @Override
     public void toggleStatus(Long id) {
 
+        // 检查状态
+        TbCategory category = this.getById(id);
+        if (category == null) {
+            throw new BusinessException("分类不存在");
+        }
+
+        // 取反 status
+        Byte newStatus = Objects.equals(category.getStatus(), TbCategoryConstant.CATEGORY_STATUS_ENABLED) ?
+                TbCategoryConstant.CATEGORY_STATUS_DISABLED : TbCategoryConstant.CATEGORY_STATUS_ENABLED;
+
+        // 更新数据库
+        this.lambdaUpdate()
+                .eq(TbCategory::getId, id)
+                .set(TbCategory::getStatus, newStatus)
+                .update();
+
+        // 删除缓存 + 重建
+        redisUtil.delete(CacheConstant.CATEGORY_TREE_KEY);
+        refreshCache();
     }
 
     /**
