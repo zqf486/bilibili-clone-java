@@ -146,12 +146,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
      * @param id
      */
     @Override
+    @Transactional
     public void toggleStatus(Long id) {
 
         // 检查状态
         TbCategory category = this.getById(id);
         if (category == null) {
-            throw new BusinessException("分类不存在");
+            throw new BusinessException(MessageConstant.CATEGORY_NOT_EXISTS);
         }
 
         // 取反 status
@@ -163,6 +164,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, TbCategory>
                 .eq(TbCategory::getId, id)
                 .set(TbCategory::getStatus, newStatus)
                 .update();
+
+        // 禁用父分类时级联禁用所有子分类
+        if (Objects.equals(newStatus, TbCategoryConstant.CATEGORY_STATUS_DISABLED)) {
+            this.lambdaUpdate()
+                    .eq(TbCategory::getPCategoryId, id)
+                    .set(TbCategory::getStatus, TbCategoryConstant.CATEGORY_STATUS_DISABLED)
+                    .update();
+        }
 
         // 删除缓存 + 重建
         redisUtil.delete(CacheConstant.CATEGORY_TREE_KEY);
