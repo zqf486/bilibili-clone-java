@@ -1,13 +1,17 @@
 package com.bilibili.util;
 
 import com.bilibili.constant.CacheConstant;
+import com.bilibili.constant.LockConstant;
 import com.bilibili.result.CacheResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -18,6 +22,9 @@ public class RedisUtil {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @Resource
+    private DefaultRedisScript<Long> unlockScript;
 
     /**
      * 将值存入 redis 并设置 过期时间
@@ -88,9 +95,8 @@ public class RedisUtil {
      *
      * @param key   缓存key
      * @param clazz data类
-     * @param <T>
+     * @param <R>
      * @return
-     * @throws JsonProcessingException
      */
     public <R> CacheResult<R> getCache(String key, Class<R> clazz) {
         try {
@@ -156,5 +162,34 @@ public class RedisUtil {
             return null;
         }
         return stringRedisTemplate.getExpire(keyPrefix + key, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 加锁
+     *
+     * @param key 锁名
+     * @return 🔒的uuid
+     */
+    public String tryLock(String key) {
+        String value = UUID.randomUUID().toString();
+        Boolean success = stringRedisTemplate.opsForValue().setIfAbsent(key, value, LockConstant.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+        return Boolean.TRUE.equals(success) ? value : null;
+    }
+
+    /**
+     * 解锁
+     *
+     * @param key   锁名
+     * @param value 🔒的uuid
+     */
+    public void unlock(String key, String value) {
+
+        if (value == null) return;
+
+        stringRedisTemplate.execute(
+                unlockScript,
+                Collections.singletonList(key),
+                value
+        );
     }
 }
