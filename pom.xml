@@ -31,7 +31,7 @@
         <springdoc>2.5.0</springdoc>
         <commonsPool2>2.11.1</commonsPool2>
         <redission>3.52.0</redission>
-        <minio>8.4.3</minio>
+        <minio>9.0.0</minio>
     </properties>
 
     <dependencyManagement>

@@ -28,6 +28,12 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+minio:
+  endpoint: ${bilibili.minio.endpoint}
+  accessKey: ${bilibili.minio.accessKey}
+  secretKey: ${bilibili.minio.secretKey}
+  bucket: ${bilibili.minio.bucket}
+
 springdoc:
   api-docs:
     enabled: true
