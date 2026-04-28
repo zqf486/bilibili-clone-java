@@ -2,7 +2,7 @@ package com.bilibili.controller.web;
 
 import com.bilibili.result.Result;
 import com.bilibili.service.ICategoryService;
-import com.bilibili.vo.CategoryTreeVO;
+import com.bilibili.vo.CategoryVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -29,7 +29,8 @@ public class CategoryController {
      */
     @Operation(summary = "获取所有启用分类（树形）")
     @GetMapping
-    public Result<List<CategoryTreeVO>> listEnabledTree() {
-        return Result.success();
+    public Result<List<CategoryVO>> listEnabledTree() {
+        List<CategoryVO> tree = categoryService.tree();
+        return Result.success(tree);
     }
 }

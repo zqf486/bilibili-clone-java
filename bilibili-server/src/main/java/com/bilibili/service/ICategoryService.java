@@ -23,4 +23,23 @@ public interface ICategoryService extends IService<TbCategory> {
      * 获取完整分类树结构
      */
     List<CategoryVO> tree();
+
+    /**
+     * 获取启用的分类树结构
+     *
+     * @return 启用的分类树形结构
+     */
+    List<CategoryVO> treeWithEnabled();
+
+    /**
+     * 缓存重建
+     */
+    void refreshCache();
+
+    /**
+     * 切换分类启用禁用
+     *
+     * @param id
+     */
+    void toggleStatus(Long id);
 }

@@ -81,6 +81,7 @@ public class CategoryAdminController {
     @Operation(summary = "启用禁用")
     @PatchMapping("/{id}/status")
     public Result status(@PathVariable Long id) {
+        categoryService.toggleStatus(id);
         return Result.success();
     }
 
