@@ -75,3 +75,22 @@ CREATE TABLE `tb_video`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
     COMMENT ='视频表';
+
+CREATE TABLE `tb_video_task`
+(
+    `id`             VARCHAR(32) NOT NULL COMMENT '任务ID (UUID)',
+    `video_id`       BIGINT      NOT NULL COMMENT '关联视频ID',
+    `user_id`        BIGINT      NOT NULL COMMENT '用户ID',
+    `progress`       INT                  DEFAULT 0 COMMENT '进度 0-100',
+    `step`           VARCHAR(50)          DEFAULT NULL COMMENT '当前步骤描述',
+    `covers`         TEXT                 DEFAULT NULL COMMENT '候选封面JSON [{url, index}]',
+    `cover_selected` INT                  DEFAULT NULL COMMENT '用户选择的封面索引',
+    `status`         TINYINT              DEFAULT 0 COMMENT '0处理中 1待选封面 2完成 3失败',
+    `error_msg`      VARCHAR(500)         DEFAULT NULL COMMENT '错误信息',
+    `create_time`    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`    DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_video_id` (`video_id`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='视频处理任务表';

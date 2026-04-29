@@ -13,7 +13,7 @@ spring:
     redis:
       host: ${bilibili.redis.host}
       port: ${bilibili.redis.port}
-#      password: ${bilibili.redis.password}
+      #      password: ${bilibili.redis.password}
       database: ${bilibili.redis.database}
       timeout: ${bilibili.redis.timeout}
       lettuce:
@@ -30,9 +30,43 @@ mybatis-plus:
 
 minio:
   endpoint: ${bilibili.minio.endpoint}
-  accessKey: ${bilibili.minio.accessKey}
-  secretKey: ${bilibili.minio.secretKey}
+  access-key: ${bilibili.minio.access-key}
+  secret-key: ${bilibili.minio.secret-key}
   bucket: ${bilibili.minio.bucket}
+
+video:
+  script-dir: ${bilibili.video.script-dir:/tmp/bilibili-scripts}
+  temp-dir: ${bilibili.video.temp-dir:/tmp/bilibili-video}
+  thumbnail-seek: ${bilibili.video.thumbnail-seek:5}
+  transcode:
+    enabled: ${bilibili.video.transcode.enabled:true}
+    pool-size: ${bilibili.video.transcode.pool-size:2}
+    hdr:
+      enabled: ${bilibili.video.transcode.hdr.enabled:true}
+      resolutions:
+        - height: 1080
+          bitrate: 5000k
+          encoder: libx265
+          crf: 18
+          pixel-format: yuv420p10le
+    sdr:
+      tonemap: ${bilibili.video.transcode.sdr.tonemap:hable}
+      resolutions:
+        - height: 1080
+          bitrate: 5000k
+          encoder: libx264
+          crf: 23
+          pixel-format: yuv420p
+        - height: 720
+          bitrate: 2500k
+          encoder: libx264
+          crf: 23
+          pixel-format: yuv420p
+        - height: 480
+          bitrate: 800k
+          encoder: libx264
+          crf: 23
+          pixel-format: yuv420p
 
 springdoc:
   api-docs:
