@@ -13,73 +13,73 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 视频处理任务表
+ * 视频分集表
  * </p>
  *
  * @author zqf486
- * @since 2026-04-29
+ * @since 2026-05-06
  */
 @Getter
 @Setter
 @ToString
-@TableName("tb_video_task")
-public class TbVideoTask implements Serializable {
+@TableName("tb_video_episode")
+public class TbVideoEpisode implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 任务ID (UUID)
+     * 分集ID（主键）
      */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    private Long id;
 
     /**
-     * 关联视频ID
+     * 所属投稿ID
      */
     @TableField("video_id")
     private Long videoId;
 
     /**
-     * 用户ID
+     * 集数（从1开始）
      */
-    @TableField("user_id")
-    private Long userId;
+    @TableField("episode_index")
+    private Integer episodeIndex;
 
     /**
-     * 进度 0-100
+     * 分集标题
      */
-    @TableField("progress")
-    private Integer progress;
+    @TableField("title")
+    private String title;
 
     /**
-     * 当前步骤描述
+     * 时长（秒）
      */
-    @TableField("step")
-    private String step;
+    @TableField("duration")
+    private Integer duration;
 
     /**
-     * 候选封面JSON [{url, index}]
+     * 播放量
      */
-    @TableField("covers")
-    private String covers;
+    @TableField("views")
+    private Integer views;
 
     /**
-     * 用户选择的封面索引
+     * 转码状态：0待处理 1处理中 2完成 3失败
      */
-    @TableField("cover_selected")
-    private Integer coverSelected;
+    @TableField("transcode_status")
+    private Byte transcodeStatus;
 
     /**
-     * 0处理中 1待选封面 2完成 3失败
-     */
-    @TableField("status")
-    private Byte status;
-
-    /**
-     * 错误信息
+     * 转码错误信息
      */
     @TableField("error_msg")
     private String errorMsg;
+
+    /**
+     * 逻辑删除
+     */
+    @TableField("is_delete")
+    private Byte isDelete;
 
     @TableField("create_time")
     private LocalDateTime createTime;
