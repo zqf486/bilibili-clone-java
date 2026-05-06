@@ -31,7 +31,7 @@
         <springdoc>2.5.0</springdoc>
         <commonsPool2>2.11.1</commonsPool2>
         <redission>3.52.0</redission>
-        <minio>9.0.0</minio>
+        <awsSdk>2.27.21</awsSdk>
     </properties>
 
     <dependencyManagement>
@@ -86,9 +86,15 @@
             </dependency>
 
             <dependency>
-                <groupId>io.minio</groupId>
-                <artifactId>minio</artifactId>
-                <version>${minio}</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${awsSdk}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>url-connection-client</artifactId>
+                <version>${awsSdk}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
