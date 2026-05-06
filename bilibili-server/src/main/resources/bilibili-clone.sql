@@ -56,7 +56,7 @@ CREATE TABLE `tb_video`
     `tags`          VARCHAR(500)          DEFAULT NULL COMMENT '标签（逗号分隔）',
     `episode_count` INT(11)               DEFAULT 1 COMMENT '总集数',
     `status`        TINYINT               DEFAULT 0 COMMENT '状态：0审核中 1已发布 2审核不通过 3私密',
-    `views`         INT(11)               DEFAULT 0 COMMENT '播放量',
+    `views`         INT(11)               DEFAULT 0 COMMENT '播  放量',
     `likes`         INT(11)               DEFAULT 0 COMMENT '点赞数',
     `favorites`     INT(11)               DEFAULT 0 COMMENT '收藏数',
     `coins`         INT(11)               DEFAULT 0 COMMENT '硬币数',
@@ -79,7 +79,7 @@ CREATE TABLE `tb_video_episode`
 (
     `id`               BIGINT   NOT NULL COMMENT '分集ID（主键）',
     `video_id`         BIGINT   NOT NULL COMMENT '所属投稿ID',
-    `episode_index`    INT(11)  NOT NULL COMMENT '集数（从1开始）',
+    `episode_index`    INT(11)  NOT NULL COMMENT '集数 (从1开始)',
     `title`            VARCHAR(100)      DEFAULT NULL COMMENT '分集标题',
     `duration`         INT(11)           DEFAULT 0 COMMENT '时长（秒）',
     `views`            INT(11)           DEFAULT 0 COMMENT '播放量',
@@ -120,14 +120,12 @@ CREATE TABLE `tb_video_stream`
 
 CREATE TABLE `tb_upload_task`
 (
-    `id`               VARCHAR(32)  NOT NULL COMMENT '任务ID（UUID）',
+    `id`               BIGINT       NOT NULL COMMENT '任务ID（主键）',
     `user_id`          BIGINT       NOT NULL COMMENT '用户ID',
     `md5`              CHAR(32)     NOT NULL COMMENT '文件MD5',
-    `file_name`        VARCHAR(255) NOT NULL COMMENT '原始文件名',
     `file_size`        BIGINT       NOT NULL COMMENT '文件总大小',
     `chunk_size`       INT          NOT NULL COMMENT '分片大小（字节）',
     `total_chunks`     INT          NOT NULL COMMENT '总分片数',
-    `completed_chunks` INT          NOT NULL DEFAULT 0 COMMENT '已完成分片数',
     `upload_id`        VARCHAR(255)          DEFAULT NULL COMMENT 'MinIO multipart upload ID',
     `object_name`      VARCHAR(500)          DEFAULT NULL COMMENT 'MinIO 对象名',
     `status`           TINYINT               DEFAULT 0 COMMENT '状态：0上传中 1上传完成 2已合并 3失败',

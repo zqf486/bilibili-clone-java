@@ -4,9 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -19,19 +17,20 @@ import java.time.LocalDateTime;
  * @author zqf486
  * @since 2026-05-06
  */
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("tb_upload_task")
 public class TbUploadTask implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * 任务ID（UUID）
+     * 任务ID（主键）
      */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private String id;
+    private Long id;
 
     /**
      * 用户ID
@@ -44,12 +43,6 @@ public class TbUploadTask implements Serializable {
      */
     @TableField("md5")
     private String md5;
-
-    /**
-     * 原始文件名
-     */
-    @TableField("file_name")
-    private String fileName;
 
     /**
      * 文件总大小
@@ -68,12 +61,6 @@ public class TbUploadTask implements Serializable {
      */
     @TableField("total_chunks")
     private Integer totalChunks;
-
-    /**
-     * 已完成分片数
-     */
-    @TableField("completed_chunks")
-    private Integer completedChunks;
 
     /**
      * MinIO multipart upload ID

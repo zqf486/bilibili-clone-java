@@ -40,7 +40,7 @@ public class TbVideoEpisode implements Serializable {
     private Long videoId;
 
     /**
-     * 集数（从1开始）
+     * 集数 (从1开始)
      */
     @TableField("episode_index")
     private Integer episodeIndex;

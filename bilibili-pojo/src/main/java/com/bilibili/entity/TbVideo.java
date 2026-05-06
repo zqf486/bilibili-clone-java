@@ -82,7 +82,7 @@ public class TbVideo implements Serializable {
     private Byte status;
 
     /**
-     * 播放量
+     * 播  放量
      */
     @TableField("views")
     private Integer views;
