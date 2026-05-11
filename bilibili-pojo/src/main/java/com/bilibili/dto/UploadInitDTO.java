@@ -8,7 +8,13 @@ import lombok.Data;
 public class UploadInitDTO {
 
     /**
-     * 视频 md5
+     * 文件MIME类型
+     */
+    @NotBlank(message = "文件类型不能为空")
+    private String type;
+
+    /**
+     * 文件 md5
      */
     @NotBlank(message = "md5值不能为空")
     private String md5;
