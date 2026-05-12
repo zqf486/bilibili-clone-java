@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignRequest;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -24,6 +25,13 @@ public class S3Service implements IS3Service {
     @Resource
     private S3Presigner s3Presigner;
 
+    /**
+     * 生成预签名上传链接
+     *
+     * @param bucket
+     * @param objectKey
+     * @return
+     */
     @Override
     public String generateUploadUrl(String bucket, String objectKey) {
         try {
@@ -41,6 +49,13 @@ public class S3Service implements IS3Service {
         }
     }
 
+    /**
+     * 生成预签名下载链接
+     *
+     * @param bucket
+     * @param objectKey
+     * @return
+     */
     @Override
     public String generateDownloadUrl(String bucket, String objectKey) {
         try {
@@ -58,6 +73,12 @@ public class S3Service implements IS3Service {
         }
     }
 
+    /**
+     * 删除对象
+     *
+     * @param bucket
+     * @param objectKey
+     */
     @Override
     public void deleteObject(String bucket, String objectKey) {
         try {
@@ -71,6 +92,13 @@ public class S3Service implements IS3Service {
         }
     }
 
+    /**
+     * 判断对象是否存在
+     *
+     * @param bucket
+     * @param objectKey
+     * @return
+     */
     @Override
     public boolean objectExists(String bucket, String objectKey) {
         try {
@@ -93,6 +121,12 @@ public class S3Service implements IS3Service {
         }
     }
 
+    /**
+     * 列举对象
+     *
+     * @param bucket
+     * @return
+     */
     @Override
     public List<String> listObjects(String bucket) {
         List<String> keys = new ArrayList<>();
@@ -105,5 +139,68 @@ public class S3Service implements IS3Service {
             throw new RuntimeException("列举对象失败", e);
         }
         return keys;
+    }
+
+    /**
+     * 创建分段上传
+     *
+     * @param bucket
+     * @param objectKey
+     * @return uploadId
+     */
+    @Override
+    public String createMultipartUpload(String bucket, String objectKey) {
+        try {
+            CreateMultipartUploadResponse response = s3Client.createMultipartUpload(
+                    CreateMultipartUploadRequest.builder()
+                            .bucket(bucket)
+                            .key(objectKey)
+                            .build()
+            );
+
+            return response.uploadId();
+
+        } catch (Exception e) {
+            log.error("生成预签名分片上传失败", e);
+            throw new RuntimeException("生成预签名分片上传失败", e);
+        }
+    }
+
+    /**
+     * 生成分片上传预签名链接
+     *
+     * @param bucket
+     * @param objectKey
+     * @param uploadId   MinIO multipart upload ID
+     * @param partNumber 分片数量
+     * @return 分片上传预签名链接
+     */
+    @Override
+    public String generateUploadPartUrl(
+            String bucket,
+            String objectKey,
+            String uploadId,
+            Integer partNumber
+    ) {
+        try {
+
+            UploadPartRequest uploadPartRequest = UploadPartRequest.builder()
+                    .bucket(bucket)
+                    .key(objectKey)
+                    .uploadId(uploadId)
+                    .partNumber(partNumber)
+                    .build();
+
+            UploadPartPresignRequest partPresignRequest = UploadPartPresignRequest.builder()
+                    .uploadPartRequest(uploadPartRequest)
+                    .signatureDuration(Duration.ofHours(1))
+                    .build();
+
+            return s3Presigner.presignUploadPart(partPresignRequest).url().toString();
+
+        } catch (Exception e) {
+            log.error("生成分片上传预签名URL失败", e);
+            throw new RuntimeException("生成分片上传预签名URL失败", e);
+        }
     }
 }

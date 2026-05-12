@@ -52,6 +52,7 @@ public interface IS3Service {
     );
 
     /**
+     * 列举对象
      *
      * @param bucket
      * @return
@@ -60,4 +61,31 @@ public interface IS3Service {
             String bucket
     );
 
+    /**
+     * 创建分段上传
+     *
+     * @param bucket
+     * @param objectKey
+     * @return MinIO multipart upload ID
+     */
+    String createMultipartUpload(
+            String bucket,
+            String objectKey
+    );
+
+    /**
+     * 生成分片上传预签名链接
+     *
+     * @param bucket
+     * @param objectKey
+     * @param uploadId   MinIO multipart upload ID
+     * @param partNumber 分片数量
+     * @return 分片上传预签名链接
+     */
+    String generateUploadPartUrl(
+            String bucket,
+            String objectKey,
+            String uploadId,
+            Integer partNumber
+    );
 }
