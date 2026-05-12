@@ -3,9 +3,8 @@ package com.bilibili.controller.web;
 import com.bilibili.annotation.LoginRequired;
 import com.bilibili.dto.UploadInitDTO;
 import com.bilibili.result.Result;
-import com.bilibili.service.IUploadService;
+import com.bilibili.service.IVideoUploadService;
 import com.bilibili.vo.UploadInitVO;
-import com.bilibili.vo.UploadTaskVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -15,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "VideoUploadController")
 @Slf4j
 @RestController
-@RequestMapping("/api/upload")
-public class UploadController {
+@RequestMapping("/api/upload/")
+public class VideoUploadController {
 
     @Resource
-    private IUploadService uploadService;
+    private IVideoUploadService videoUploadService;
 
     /**
      * 初始化上传任务
@@ -31,7 +30,7 @@ public class UploadController {
     @LoginRequired
     @PostMapping("/init")
     public Result<UploadInitVO> init(@RequestBody UploadInitDTO dto) {
-        UploadInitVO init = uploadService.init(dto);
+        UploadInitVO init = videoUploadService.init(dto);
         return Result.success(init);
     }
 
@@ -46,7 +45,7 @@ public class UploadController {
     @LoginRequired
     @PostMapping("/{taskId}/heartbeat")
     public Result heartbeat(@PathVariable Long taskId) {
-        uploadService.heartbeat(taskId);
+        videoUploadService.heartbeat(taskId);
         return Result.success();
     }
 }

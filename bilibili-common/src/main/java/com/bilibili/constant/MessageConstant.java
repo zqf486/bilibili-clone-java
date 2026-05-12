@@ -21,4 +21,8 @@ public class MessageConstant {
     public static final String CATEGORY_NOT_EXISTS_OR_DELETE_FAILED = "分类不存在或删除失败";
     public static final String CATEGORY_NOT_EXISTS = "分类不存在";
     public static final String P_CATEGORY_ILLEGAL = "父分类不合法";
+
+    // 上传相关
+    public static final String UPLOAD_TASK_ID_EMPTY = "任务id不能为空";
+    public static final String UPLOAD_TASK_NOT_EXISTS = "上传任务不存在";
 }

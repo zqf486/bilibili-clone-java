@@ -5,10 +5,10 @@ import com.bilibili.vo.UploadInitVO;
 
 import java.util.List;
 
-public interface IUploadService {
+public interface IVideoUploadService {
 
     /**
-     * 上传初始化
+     * 分片上传初始化
      *
      * @return 预签名上传链接
      */

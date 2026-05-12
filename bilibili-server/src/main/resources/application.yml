@@ -34,6 +34,10 @@ minio:
   secret-key: ${bilibili.minio.secret-key}
   bucket: ${bilibili.minio.bucket}
 
+upload:
+  chunk-size: ${bilibili.upload.chunk-size:5242880}
+  task-ttl: ${bilibili.upload.task-ttl:1}
+
 video:
   script-dir: ${bilibili.video.script-dir:/tmp/bilibili-scripts}
   temp-dir: ${bilibili.video.temp-dir:/tmp/bilibili-video}
