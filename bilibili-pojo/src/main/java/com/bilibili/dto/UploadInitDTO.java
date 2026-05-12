@@ -8,6 +8,12 @@ import lombok.Data;
 public class UploadInitDTO {
 
     /**
+     * 原始文件名
+     */
+    @NotBlank(message = "文件名不能为空")
+    private String name;
+
+    /**
      * 文件MIME类型
      */
     @NotBlank(message = "文件类型不能为空")
