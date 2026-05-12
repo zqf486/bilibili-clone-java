@@ -203,4 +203,35 @@ public class S3Service implements IS3Service {
             throw new RuntimeException("生成分片上传预签名URL失败", e);
         }
     }
+
+    @Override
+    public List<Integer> listUploadedParts(
+            String bucket,
+            String objectKey,
+            String uploadId
+    ) {
+
+        try {
+
+            ListPartsResponse response =
+                    s3Client.listParts(
+                            ListPartsRequest.builder()
+                                    .bucket(bucket)
+                                    .key(objectKey)
+                                    .uploadId(uploadId)
+                                    .build()
+                    );
+
+            return response.parts()
+                    .stream()
+                    .map(Part::partNumber)
+                    .toList();
+
+        } catch (Exception e) {
+
+            log.error("查询已上传分片失败", e);
+
+            throw new RuntimeException("查询已上传分片失败", e);
+        }
+    }
 }

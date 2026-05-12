@@ -88,4 +88,18 @@ public interface IS3Service {
             String uploadId,
             Integer partNumber
     );
+
+    /**
+     * 查询已经上传分片
+     *
+     * @param bucket
+     * @param objectKey
+     * @param uploadId  MinIO multipart upload ID
+     * @return 分片序号
+     */
+    List<Integer> listUploadedParts(
+            String bucket,
+            String objectKey,
+            String uploadId
+    );
 }
